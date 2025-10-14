@@ -1,0 +1,32 @@
+[
+    {
+        "name" : "Nawinkumar P",
+        "img" : "team1",
+        "Designation" : "Software Engineer"
+    },
+    {
+        "name" : "Kiruba Karan A",
+        "img" : "team2",
+        "Designation" : "Back-end Dev"
+    },
+    {
+        "name" : "Prabhu",
+        "img" : "team3",
+        "Designation" : "Full Stack Dev"
+    },
+    {
+        "name" : "Praveen",
+        "img" : "team4",
+        "Designation" : "Full Stack Dev"
+    },
+    {
+        "name" : "Suresh",
+        "img" : "team3",
+        "Designation" : "Full Stack Dev"
+    },
+    {
+        "name" : "Ha",
+        "img" : "team2",
+        "Designation" : "Tester"
+    }
+]
