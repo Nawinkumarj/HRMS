@@ -5,6 +5,7 @@ import { assets } from '../../assets/assets';
 import HrAdmin from './HrDashboard';
 import Work  from './Work'
 import LeaveList from './LeaveList';
+import HrTeam from './HrTeam';
 // import TeamMembers from './TeamMembers';
 
 const menuItems = [
@@ -31,6 +32,7 @@ const Admin = () => {
             <Route path="AdminDashboard" element={<HrAdmin />} />
             <Route path="work" element={ <Work /> } />
             <Route path="leave" element={ <LeaveList /> } />
+            <Route path='TeamMember' element={<HrTeam/>}/>
             
             {/* <Route path="TeamMember" element={<TeamMembers />} /> */}
       </Routes>
