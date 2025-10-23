@@ -8,6 +8,7 @@ import MiniCalendar from '../../components/MiniCalendar'
 import { AttendanceProvider } from '../../context/AttendanceContext'
 import Assets  from '../../components/Assets'
 import Hiring from '../../components/Hiring'
+import ProgressBar from '../../components/ProgressBar'
 
 const MainDashboard = () => {
   return (
@@ -47,6 +48,9 @@ const MainDashboard = () => {
       <div className="ThirdSection">
         <div>
           <Hiring />
+        </div>
+        <div>
+          <ProgressBar/>
         </div>
         <div>
           
