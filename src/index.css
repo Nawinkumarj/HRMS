@@ -194,7 +194,7 @@ a {
     border-radius: 8px;
     flex-direction: column;
     gap: 15px;
-    overflow: scroll;
+    /* overflow: scroll; */
 }
 
 .SideBarIcon img {
@@ -222,6 +222,47 @@ a {
         transform: translate(-50%, -50%);
     }
 }
+
+
+.SideBarGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.SubMenu {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+  margin-top: 6px;
+  position: absolute;
+  z-index: 9999;
+  left:100%;
+  gap:0.1rem;
+  width: 100% !important;
+  top:-200%;
+}
+
+.SubMenuItem {
+  font-size: 14px;
+  color: #000000;
+  text-decoration: none;
+  margin: 4px 0;
+  transition: color 0.3s ease;
+  font-size: 16px;
+  display: flex;
+  background: #06b6d4;
+  width: 150px !important;
+  border-radius: 10px !important;
+  height: 100% !important;
+  align-items: center;
+}
+
+.SubMenuItem:hover {
+  color: #000;
+}
+
 
 /* EMP Navbar */
 
@@ -256,6 +297,29 @@ a {
 .navbarContainer .rightSide {
     gap: 15px;
 }
+
+.weatherInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.weatherIcon {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.weatherInfo h1 {
+  font-size: 16px;
+  line-height: 1.2;
+}
+
+.weatherInfo p {
+  font-size: 14px;
+  color: #666;
+}
+
 
 .navbarContainer .rightSide img {
     width: 30px;
@@ -7583,3 +7647,442 @@ color: black!important;
 }
 
 /* HR Dashboard ends */
+
+
+/* schedule starts */
+.schedule-container {
+  width: 350px;
+  background: #f8faf9;
+  border-radius: 18px;
+  box-shadow: 0 2px 18px 0 rgba(80, 94, 126, 0.15), 0 1.5px 8px 0 rgba(80, 94, 126, 0.10);
+  padding: 20px 20px 12px 20px;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.schedule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+}
+
+.calendar-icon {
+  font-size: 24px;
+  margin-right: 5px;
+}
+
+.schedule-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.see-all-btn {
+  background: none;
+  border: none;
+  color: #7C887A;
+  font-size: 0.93rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.calendar-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.month-label {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0 14px;
+  color: #41515E;
+}
+
+.arrow-btn {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.dates-row {
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.date-item {
+  text-align: center;
+  font-size: 0.92rem;
+  letter-spacing: 0.1px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  color: #7c887a;
+  font-weight: 500;
+}
+
+.date-item.active {
+  background: linear-gradient(180deg, #E0F1E5 0%, #b4e5cb 100%);
+  color: #273D2E;
+  font-weight: 600;
+  box-shadow: 0 2px 6px 0 rgba(80, 94, 126, 0.05);
+}
+
+.date-item span {
+  display: block;
+  font-size: 1.03rem;
+  font-weight: 600;
+}
+
+.search-row {
+  display: flex;
+  margin-bottom: 11px;
+  gap: 7px;
+}
+
+.search-input {
+  flex: 1;
+  border: 1px solid #e7e8e7;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.calendar-grid-btn {
+  background: #e6f8ed;
+  border: none;
+  border-radius: 6px;
+  padding: 0 12px;
+  font-size: 1.19rem;
+  color: #7c887a;
+  cursor: pointer;
+}
+
+.tabs-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 9px;
+  border-bottom: 2.5px solid #ECF2ED;
+}
+
+.tab {
+  padding-bottom: 7px;
+  color: #8FB398;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 1.02rem;
+  transition: color 0.15s, border-bottom 0.15s;
+}
+
+.tab.active {
+  border-bottom: 2.5px solid #8ADAB2;
+  color: #335C48;
+}
+
+.meeting-card {
+  background: #FFF;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px 0 rgba(112, 141, 166, 0.07);
+  padding: 15px 13px;
+  margin-bottom: 13px;
+  transition: box-shadow 0.16s;
+}
+
+.meeting-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.meeting-title {
+  font-weight: 600;
+  font-size: 1.02rem;
+  color: #313742;
+}
+
+.meeting-time {
+  font-size: 0.92rem;
+  color: #818589;
+  margin: 6px 0 5px 0;
+}
+
+.meeting-avatars {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.meeting-avatars img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  margin-right: -10px;
+  background: #e6ebe7;
+  object-fit: cover;
+}
+
+.more-avatars {
+  margin-left: 12px;
+  font-size: 0.98rem;
+  color: #7c887a;
+  font-weight: 500;
+}
+
+.meeting-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.meeting-platform {
+  color: #88a992;
+  font-size: 0.96rem;
+}
+
+.meeting-category {
+  padding: 4px 13px;
+  border-radius: 16px;
+  color: #fff;
+  font-size: 0.93em;
+  font-weight: 500;
+}
+
+.meeting-category.marketing {
+  background: #86a97c;
+}
+
+.meeting-category.uiux {
+  background: #217671;
+}
+
+
+/* schedule ends */
+
+/* Tasklist Starts */
+
+.task-container {
+  width: 340px;
+  max-width: 100vw;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 6px 18px 0 rgba(44, 62, 80, 0.10);
+  padding: 24px;
+  font-family: 'Inter', Arial, sans-serif;
+  margin: auto;
+}
+
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.task-title {
+  font-size: 1.18rem;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.add-task-btn {
+  background: #F8DFEF;
+  border: none;
+  outline: none;
+  padding: 7px 16px;
+  border-radius: 8px;
+  color: #9C27B0;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: box-shadow 0.2s;
+}
+
+.add-task-btn:hover, .add-task-btn:focus {
+  box-shadow: 0 2px 8px rgba(156,39,176,0.07);
+}
+
+.task-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #faf9fa;
+  padding: 14px 14px 8px 14px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.input {
+  border: 1px solid #ede6f4;
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-size: 1rem;
+  margin-bottom: 2px;
+  outline: none;
+  transition: background .13s, border .16s;
+}
+
+.input:focus {
+  border-color: #9C27B0;
+  background: #fff;
+}
+
+.add-labels-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 2px;
+}
+
+.label {
+  padding: 2px 10px;
+  background: #f0f3fb;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  color: #565656;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: box-shadow 0.15s, border 0.15s;
+}
+
+.label-today { background: #D6FFE7; color: #56C288; }
+.label-todo { background: #262626; color: #fff; }
+.label-meeting { background: #ECE7FF; color: #7551FF; }
+.label-important { background: #FFE5B4; color: #FF9800; }
+.label-yesterday { background: #E1E1E1; color: #5C5C5C; }
+
+.selected, .highlight {
+  box-shadow: 0 0 0 2px #F8DFEF;
+  border: 2px solid #9C27B0 !important;
+}
+
+.label:active, .label:hover {
+  filter: brightness(0.95);
+}
+
+.form-btn-row {
+  margin-top: 2px;
+  display: flex;
+  gap: 12px;
+}
+
+.add-confirm-btn {
+  background: #F8DFEF;
+  border: none;
+  color: #9C27B0;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 5px 18px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.13s;
+}
+
+.add-confirm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add-cancel-btn {
+  background: #fff;
+  border: 1px solid #ddd;
+  color: #9C27B0;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 5px 18px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.task-item {
+  display: flex;
+  align-items: flex-start;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f3f3f3;
+}
+
+.task-item:last-child {
+  border-bottom: none;
+}
+
+.task-checkbox {
+  margin-right: 12px;
+  margin-top: 4px;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+}
+
+.task-checkbox input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #56C288;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: box-shadow 0.13s;
+}
+
+.task-checkbox input[type="checkbox"]:focus {
+  box-shadow: 0 0 0 2px #F8DFEF;
+}
+
+.task-item.completed .task-checkbox input[type="checkbox"] {
+  accent-color: #56C288;
+}
+
+.task-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.t-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 2px;
+}
+
+.t-desc {
+  font-size: 0.93rem;
+  color: #919191;
+  margin-top: 4px;
+}
+
+.t-labels {
+  margin-top: 6px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.task-date {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: #919191;
+  font-size: 0.88rem;
+}
+
+.calendar-icon {
+  margin-right: 1px;
+}
+
+
+/* Tasklist ends */

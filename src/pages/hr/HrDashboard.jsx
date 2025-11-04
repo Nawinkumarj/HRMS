@@ -8,6 +8,8 @@ import HolidayCard from '../../components/HolidayCard'
 import Assets from '../../components/Assets'
 // import { Calendar } from 'rsuite'
 import OurTeam from '../../components/ourTeam'
+import Schedule from '../../components/Schedule'
+import TaskList from '../../components/TaskList'
 
 const MainAdmin = () => {
   return (
@@ -28,7 +30,7 @@ const MainAdmin = () => {
           <HolidayCard />
         </div>
         <div>
-          <WeatherCard />
+          <TaskList/>
         </div>
       </div>
 
@@ -40,6 +42,10 @@ const MainAdmin = () => {
           </div>
           <div className='admin-report'>
               <DailyReport />
+          </div>
+          <div className='admin-report'>
+              <Schedule />
+              
           </div>
 
       </div>
