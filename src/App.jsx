@@ -1,5 +1,5 @@
 import Login from './pages/Login'
-import EmployeeDashboard from './pages/employee/employeeDashboard';
+import EmployeeDashboard from './pages/employee/EmployeeDashboard';
 import Hr from './pages/hr/HrAdmin'
 import Admin from './pages/admin/Admin'
 import SuperAdmin from './pages/superAdmin/SuperAdmin'
