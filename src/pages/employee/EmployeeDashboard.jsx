@@ -9,7 +9,7 @@ import Holiday from './Holiday';
 import Attandance from './Attandence'
 import Salary from './Salary'
 import HolidayList from '../../components/HolidayList';
-import Chat from '../../components/c`hat';
+import Chat from '../../components/chat';
 
 const menuItems = [
   { path: '/employee/dashboard', icon: assets.dashboardIcon, alt: 'Dashboard' },
