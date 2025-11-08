@@ -9,6 +9,7 @@ import Holiday from './Holiday';
 import Attandance from './Attandence'
 import Salary from './Salary'
 import HolidayList from '../../components/HolidayList';
+import Chat from '../../components/c`hat';
 
 const menuItems = [
   { path: '/employee/dashboard', icon: assets.dashboardIcon, alt: 'Dashboard' },
@@ -23,7 +24,7 @@ const menuItems = [
 const EmployeeDashboard = () => {
   return (
     <div className="EmpDashboard">
-      
+
       <div className='EmpTopSection flex-center'>
         <img src={assets.cropLogo} alt="Company Logo" width={100} />
         <Navbar />
@@ -37,10 +38,11 @@ const EmployeeDashboard = () => {
             <Route path="salary" element={<Salary />} />
             <Route path="attendance" element={<Attandance />}/>
             <Route path="holiday" element={<Holiday />} />
-            {/* <Route path="holidaylist" element={<HolidayList />} /> */}
+            <Route path="holidaylist" element={<HolidayList />} />
             <Route path="profile" element={<Profile />} />
+            <Route path='inbox' element={<Chat/>}/>
       </Routes>
-      </div>
+      </div> 
     </div>
   );
 };
