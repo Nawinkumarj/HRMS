@@ -8,6 +8,8 @@ import MiniCalendar from '../../components/MiniCalendar'
 import { AttendanceProvider } from '../../context/AttendanceContext'
 import Assets  from '../../components/Assets'
 import Hiring from '../../components/Hiring'
+import ProgressBar from '../../components/ProgressBar'
+import Task from '../../components/Task'
 
 const MainDashboard = () => {
   return (
@@ -48,6 +50,12 @@ const MainDashboard = () => {
         <div>
           <Hiring />
         </div>
+        <div>
+          <ProgressBar/>
+        </div>
+      <div>
+        <Task/>
+      </div>
         <div>
           
         </div>

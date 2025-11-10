@@ -1,6 +1,6 @@
 import React from 'react'
 import ProfileCard from '../../components/ProfileCard'
-import EmployeeAttendance from '../../components/employeeAttendance'
+import EmployeeAttendance from '../../components/EmployeeAttendance'
 import CustomDonutChart from "../../components/PieChart";
 import {users} from "../../data/User";
 import WeatherCard from '../../components/WeatherCard';

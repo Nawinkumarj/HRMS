@@ -7646,6 +7646,12 @@ color: black!important;
   }
 }
 
+.holiday-day {
+  background: #3b82f6 !important;
+  color: white !important;
+  border-radius: 0.25rem;
+}
+
 /* HR Dashboard ends */
 
 

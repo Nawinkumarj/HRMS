@@ -126,7 +126,8 @@ const Navbar = () => {
             <h3>{user?.name}</h3>
             <p>{user?.designation}</p>
           </div>
-          <NavLink to="/employee/profile"> View More</NavLink>
+          <NavLink to='/employee/profile'
+            onClick={() => setOpenProfile("none")}> View More</NavLink>
         </div>
 
         <div className="inboxInfo">
