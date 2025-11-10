@@ -1,118 +1,16 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useMemo, useRef, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useEmployees } from "../context/EmployeesContext";
 
 const EmployeeList = ({ viewDetailsLink }) => {
-  const [employees] = useState([
-    {
-      id: 1,
-      name: "Bagus Fikri",
-      position: "CEO",
-      employeeId: "#EMP01",
-      department: "Managerial",
-      workType: "Fulltime",
-      email: "bagusfikri@gmail.com",
-      phone: "+62 123 123 123",
-      joinDate: "29 Oct, 2020",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=12",
-    },
-    {
-      id: 2,
-      name: "Indizein",
-      position: "Illustrator",
-      employeeId: "#EMP02",
-      department: "Managerial",
-      workType: "Fulltime",
-      email: "indizein@gmail.com",
-      phone: "(40) 268 082 716",
-      joinDate: "1 Feb, 2019",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=13",
-    },
-    {
-      id: 3,
-      name: "Mufti Hidayat",
-      position: "Project Manager",
-      employeeId: "#EMP03",
-      department: "Managerial",
-      workType: "Fulltime",
-      email: "muftih@gmail.com",
-      phone: "(63) 130 689 256",
-      joinDate: "1 Feb, 2021",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=14",
-    },
-    {
-      id: 4,
-      name: "Fauzan",
-      position: "Manager",
-      employeeId: "#EMP04",
-      department: "Managerial",
-      workType: "Fulltime",
-      email: "helocaer@gmail.com",
-      phone: "(44) 630",
-      joinDate: "21 Sep, 2020",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=15",
-    },
-    {
-      id: 5,
-      name: "Raihan Fikri",
-      position: "QC & Research",
-      employeeId: "#EMP05",
-      department: "Quality Control",
-      workType: "Fulltime",
-      email: "raihan@gmail.com",
-      phone: "+62 123 456 789",
-      joinDate: "15 Mar, 2020",
-      status: "Invited",
-      avatar: "https://i.pravatar.cc/150?img=33",
-    },
-    {
-      id: 6,
-      name: "Panji Dwi",
-      position: "UI Designer",
-      employeeId: "#EMP06",
-      department: "Design",
-      workType: "Fulltime",
-      email: "panji@gmail.com",
-      phone: "+62 987 654 321",
-      joinDate: "10 Jan, 2021",
-      status: "Inactive",
-      avatar: "https://i.pravatar.cc/150?img=34",
-    },
-    {
-      id: 7,
-      name: "Bagas",
-      position: "UI Designer",
-      employeeId: "#EMP07",
-      department: "Design",
-      workType: "Fulltime",
-      email: "bagas@gmail.com",
-      phone: "+62 555 444 333",
-      joinDate: "5 Jul, 2021",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=35",
-    },
-    {
-      id: 8,
-      name: "Laoly",
-      position: "Product Designer",
-      employeeId: "#EMP08",
-      department: "Design",
-      workType: "Fulltime",
-      email: "laoly@gmail.com",
-      phone: "+62 111 222 333",
-      joinDate: "12 Aug, 2021",
-      status: "Active",
-      avatar: "https://i.pravatar.cc/150?img=36",
-    },
-  ]);
+  const { employees, importEmployees, updateEmployee } = useEmployees();
+  const navigate = useNavigate();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
   const [filterRole, setFilterRole] = useState("");
+  const fileInputRef = useRef(null);
 
   const getStatusClass = (status) => {
     switch (status.toLowerCase()) {
@@ -127,17 +25,44 @@ const EmployeeList = ({ viewDetailsLink }) => {
     }
   };
 
-  const filteredEmployees = employees.filter((emp) => {
+  const filteredEmployees = useMemo(() => employees.filter((emp) => {
     const matchesSearch =
       emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       emp.employeeId.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesSearch;
-  });
+    const matchesStatus = !filterStatus || emp.status === filterStatus;
+    const matchesType = !filterType || emp.workType === filterType;
+    const matchesRole = !filterRole || emp.position === filterRole;
+    return matchesSearch && matchesStatus && matchesType && matchesRole;
+  }), [employees, searchTerm, filterStatus, filterType, filterRole]);
 
   const activeCount = employees.filter((emp) => emp.status === "Active").length;
   const inactiveCount = employees.filter(
     (emp) => emp.status === "Inactive"
   ).length;
+
+  const exportData = () => {
+    const blob = new Blob([JSON.stringify(employees, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'employees.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const onImportFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      importEmployees(data);
+    } catch (err) {
+      alert('Failed to import employees. Ensure it\'s a valid JSON file.');
+    } finally {
+      e.target.value = '';
+    }
+  };
 
   return (
     <div className="emp-list-container">
@@ -152,11 +77,12 @@ const EmployeeList = ({ viewDetailsLink }) => {
           </div>
         </div>
         <div className="emp-list-actions">
-          <button className="emp-list-btn-secondary">
+          <input ref={fileInputRef} type="file" accept="application/json" style={{display:'none'}} onChange={onImportFile} />
+          <button className="emp-list-btn-secondary" onClick={() => fileInputRef.current?.click()}>
             <span className="emp-list-icon">📥</span>
             Import
           </button>
-          <button className="emp-list-btn-secondary">
+          <button className="emp-list-btn-secondary" onClick={exportData}>
             <span className="emp-list-icon">📤</span>
             Export
           </button>
@@ -175,28 +101,46 @@ const EmployeeList = ({ viewDetailsLink }) => {
           />
         </div>
         <div className="emp-list-filter-group">
-          <button className="emp-list-filter-btn">
+          <label className="emp-list-filter-btn">
             <span className="emp-list-filter-icon">👤</span>
             Type
-            <span className="emp-list-dropdown-icon">▼</span>
-          </button>
-          <button className="emp-list-filter-btn">
+            <select className="emp-detail-select" value={filterType} onChange={(e)=>setFilterType(e.target.value)}>
+              <option value=''>All</option>
+              <option value='Fulltime'>Fulltime</option>
+              <option value='Part-time'>Part-time</option>
+              <option value='Contractor'>Contractor</option>
+            </select>
+          </label>
+          <label className="emp-list-filter-btn">
             <span className="emp-list-filter-icon">✓</span>
             Status
-            <span className="emp-list-dropdown-icon">▼</span>
-          </button>
-          <button className="emp-list-filter-btn">
+            <select className="emp-detail-select" value={filterStatus} onChange={(e)=>setFilterStatus(e.target.value)}>
+              <option value=''>All</option>
+              <option value='Active'>Active</option>
+              <option value='Inactive'>Inactive</option>
+              <option value='Invited'>Invited</option>
+            </select>
+          </label>
+          <label className="emp-list-filter-btn">
             <span className="emp-list-filter-icon">👔</span>
             Role
-            <span className="emp-list-dropdown-icon">▼</span>
-          </button>
-          <button className="emp-list-filter-btn">
+            <select className="emp-detail-select" value={filterRole} onChange={(e)=>setFilterRole(e.target.value)}>
+              <option value=''>All</option>
+              {[...new Set(employees.map(e=>e.position))].map(r => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          </label>
+          <button className="emp-list-filter-btn" onClick={()=>{setFilterType('');setFilterStatus('');setFilterRole('');setSearchTerm('')}}>
             <span className="emp-list-filter-icon">⚙</span>
-            Advance Filter
-            <span className="emp-list-dropdown-icon">▼</span>
+            Clear Filters
           </button>
         </div>
-        <button className="emp-list-btn-icon">
+        <button className="emp-list-btn-icon" onClick={() => {
+          const dept = prompt('Enter new department for current filtered employees:');
+          if (!dept) return;
+          filteredEmployees.forEach(emp => updateEmployee(emp.id, { department: dept }));
+        }}>
           <span className="emp-list-icon">👥</span>
           Transfer
         </button>
@@ -213,7 +157,7 @@ const EmployeeList = ({ viewDetailsLink }) => {
               >
                 ● {employee.status}
               </span>
-              <button className="emp-list-card-menu">⋮</button>
+              <button className="emp-list-card-menu" onClick={()=>navigate(`${viewDetailsLink}/${employee.id}`)}>⋮</button>
             </div>
 
             <div className="emp-list-card-body">
@@ -263,7 +207,7 @@ const EmployeeList = ({ viewDetailsLink }) => {
               <span className="emp-list-join-date">
                 Joined at {employee.joinDate}
               </span>
-              <Link to={viewDetailsLink} className="emp-list-view-details-link">
+              <Link to={`${viewDetailsLink}/${employee.id}`} className="emp-list-view-details-link">
                 <button className="emp-list-view-details">
                   View details
                   <span className="emp-list-arrow">→</span>

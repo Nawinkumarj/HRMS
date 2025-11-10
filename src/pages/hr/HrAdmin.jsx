@@ -7,6 +7,7 @@ import Work from "./Work";
 import LeaveList from "./LeaveList";
 import HrTeam from "./HrTeam";
 import HrTeamDetail from "./HrTeamDetail";
+import { EmployeesProvider } from "../../context/EmployeesContext";
 // import TeamMembers from './TeamMembers';
 
 const menuItems = [
@@ -37,20 +38,23 @@ const Admin = () => {
       </div>
       <SideBar menuItems={menuItems} />
       <div className="dashboardContent">
-        <Routes>
-          <Route index element={<HrAdmin />} />
-          <Route path="AdminDashboard" element={<HrAdmin />} />
-          <Route path="work" element={<Work />} />
-          <Route path="leave" element={<LeaveList />} />
+        <EmployeesProvider>
+          <Routes>
+            <Route index element={<HrAdmin />} />
+            <Route path="AdminDashboard" element={<HrAdmin />} />
+            <Route path="work" element={<Work />} />
+            <Route path="leave" element={<LeaveList />} />
 
-          <Route path="TeamMember">
-            <Route index element={<HrTeam />} />
-            <Route path="employee-detail" element={<HrTeam />} />
-            <Route path="employee-detail/view" element={<HrTeamDetail />} />
-            <Route path="payslip" element={<div>Payslip</div>} />
-            <Route path="xx" element={<div>XX</div>} />
-          </Route>
-        </Routes>
+            <Route path="TeamMember">
+              <Route index element={<HrTeam />} />
+              <Route path="employee-detail" element={<HrTeam />} />
+              <Route path="employee-detail/view/:id" element={<HrTeamDetail />} />
+              <Route path="employee-detail/new" element={<HrTeamDetail />} />
+              <Route path="payslip" element={<div>Payslip</div>} />
+              <Route path="xx" element={<div>XX</div>} />
+            </Route>
+          </Routes>
+        </EmployeesProvider>
       </div>
     </div>
   );

@@ -1,33 +1,84 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useEmployees } from '../context/EmployeesContext';
 
-const EmployeeDetails = () => {
-  const [formData, setFormData] = useState({
-    firstName: 'Russel',
-    lastName: 'Sims',
-    email: 'russel@mycompany.com',
-    phone: '+1 255 28354690',
-    position: 'iOS Developer',
-    role: 'Employee',
-    manager: 'Kole Middleton',
-    hrManager: 'Kirk Mittohn',
-    lead: 'Eugene Hummel',
-    startsOn: '21.05.2022',
-    onboardingRequired: true,
-    officeTour: true,
-    managementIntroductory: false,
-    workTools: true,
-    meetYourColleagues: true,
-    dutiesJournal: true,
-    requestsHandling: true,
-    activityTracking: true,
-    onboardingProgress: 35,
-    officeTourProgress: 100,
-    workToolsProgress: 20,
-    meetColleaguesProgress: 0,
-    dutiesJournalProgress: 0,
-    requestsHandlingProgress: 0,
-    activityTrackingProgress: 0
-  });
+const toYMD = (d) => {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+};
+
+const parseDateToYMD = (value) => {
+  if (!value) return toYMD(new Date());
+  // Already yyyy-mm-dd
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  // Try native Date parsing
+  const d1 = new Date(value);
+  if (!isNaN(d1)) return toYMD(d1);
+  // Try dd.mm.yyyy
+  const m = value.match(/^(\d{2})[.](\d{2})[.](\d{4})$/);
+  if (m) {
+    const [, dd, mm, yyyy] = m;
+    const d2 = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+    if (!isNaN(d2)) return toYMD(d2);
+  }
+  return toYMD(new Date());
+};
+
+const EmployeeDetails = ({ employee }) => {
+  const navigate = useNavigate();
+  const { addEmployee, updateEmployee, deleteEmployee } = useEmployees();
+
+  const initialData = useMemo(() => {
+    const name = employee?.name || '';
+    const [firstName, ...rest] = name.split(' ');
+    const lastName = rest.join(' ');
+    return {
+      firstName: firstName || '',
+      lastName: lastName || '',
+      email: employee?.email ?? '',
+      phone: employee?.phone ?? '',
+      position: employee?.position ?? '',
+      role: employee?.role ?? 'Employee',
+      status: employee?.status ?? 'Active',
+      manager: 'Kole Middleton',
+      hrManager: 'Kirk Mittohn',
+      lead: 'Eugene Hummel',
+      startsOn: parseDateToYMD(employee?.joinDate),
+      onboardingRequired: true,
+      officeTour: true,
+      managementIntroductory: false,
+      workTools: true,
+      meetYourColleagues: true,
+      dutiesJournal: true,
+      requestsHandling: true,
+      activityTracking: true,
+      onboardingProgress: 35,
+      officeTourProgress: 100,
+      workToolsProgress: 20,
+      meetColleaguesProgress: 0,
+      dutiesJournalProgress: 0,
+      requestsHandlingProgress: 0,
+      activityTrackingProgress: 0
+    };
+  }, [employee]);
+
+  const [formData, setFormData] = useState(initialData);
+
+  useEffect(() => {
+    setFormData(initialData);
+  }, [initialData]);
+
+  const dateInputRef = useRef(null);
+  const openDatePicker = () => {
+    const el = dateInputRef.current;
+    if (!el) return;
+    if (typeof el.showPicker === 'function') {
+      el.showPicker();
+    } else {
+      el.focus();
+      el.click();
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -39,18 +90,36 @@ const EmployeeDetails = () => {
   };
 
   const handleSave = () => {
-    console.log('Saving changes:', formData);
-    // Add your save logic here
+    const name = `${formData.firstName} ${formData.lastName}`.trim();
+    const payload = {
+      name,
+      position: formData.position,
+      email: formData.email,
+      phone: formData.phone,
+      joinDate: formData.startsOn,
+      status: formData.status,
+      role: formData.role,
+    };
+    if (employee?.id) {
+      updateEmployee(employee.id, payload);
+    } else {
+      const created = addEmployee(payload);
+      // After create, navigate to detail view
+      navigate(`/hr/TeamMember/employee-detail/view/${created.id}`);
+      return;
+    }
+    navigate(-1);
   };
 
   const handleCancel = () => {
-    console.log('Cancelled');
-    // Add your cancel logic here
+    navigate(-1);
   };
 
   const handleDelete = () => {
-    console.log('Delete user');
-    // Add your delete logic here
+    if (employee?.id) {
+      deleteEmployee(employee.id);
+      navigate(-1);
+    }
   };
 
   const copyToClipboard = (text) => {
@@ -60,15 +129,15 @@ const EmployeeDetails = () => {
   return (
     <div className="emp-detail-container">
       <div className="emp-detail-header">
-        <button className="emp-detail-back-btn">←</button>
+        <button className="emp-detail-back-btn" onClick={()=>navigate(-1)}>←</button>
         <img 
-          src="/api/placeholder/40/40" 
-          alt="Profile" 
+          src={employee?.avatar || "/api/placeholder/40/40"}
+          alt="Profile"
           className="emp-detail-header-avatar"
         />
-        <h1 className="emp-detail-header-name">Russel Sims</h1>
+        <h1 className="emp-detail-header-name">{`${formData.firstName} ${formData.lastName}`}</h1>
         <div className="emp-detail-header-right">
-          <span className="emp-detail-added-date">Added on: 21.04.2022</span>
+          <span className="emp-detail-added-date">Added on: {formData.startsOn}</span>
           <button className="emp-detail-delete-btn" onClick={handleDelete}>
             🗑️ Delete
           </button>
@@ -83,8 +152,8 @@ const EmployeeDetails = () => {
             <label className="emp-detail-label">PROFILE IMAGE</label>
             <div className="emp-detail-profile-image-container">
               <img 
-                src="/api/placeholder/160/200" 
-                alt="Profile" 
+                src={employee?.avatar || "/api/placeholder/160/200"}
+                alt={employee?.name || "Profile"}
                 className="emp-detail-profile-image"
               />
               <button className="emp-detail-change-image-btn">
@@ -172,9 +241,9 @@ const EmployeeDetails = () => {
 
         {/* Middle Column */}
         <div className="emp-detail-middle-column">
-          {/* Role Section */}
+          {/* Role & Status Section */}
           <div className="emp-detail-section">
-            <label className="emp-detail-label">ROLE</label>
+            <label className="emp-detail-label">ROLE & STATUS</label>
             <div className="emp-detail-form-group">
               <label className="emp-detail-field-label">Role</label>
               <select
@@ -186,6 +255,19 @@ const EmployeeDetails = () => {
                 <option value="Employee">Employee</option>
                 <option value="Manager">Manager</option>
                 <option value="Admin">Admin</option>
+              </select>
+            </div>
+            <div className="emp-detail-form-group">
+              <label className="emp-detail-field-label">Status</label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+                className="emp-detail-select"
+              >
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+                <option value="Invited">Invited</option>
               </select>
             </div>
           </div>
@@ -263,13 +345,14 @@ const EmployeeDetails = () => {
               <label className="emp-detail-field-label">Starts on</label>
               <div className="emp-detail-input-with-icon">
                 <input
-                  type="text"
+                  ref={dateInputRef}
+                  type="date"
                   name="startsOn"
                   value={formData.startsOn}
                   onChange={handleInputChange}
                   className="emp-detail-input"
                 />
-                <span className="emp-detail-calendar-icon">📅</span>
+                <button type="button" className="emp-detail-calendar-icon" onClick={openDatePicker} title="Pick date">📅</button>
               </div>
             </div>
 
@@ -300,7 +383,7 @@ const EmployeeDetails = () => {
                 </div>
                 <span className="emp-detail-progress-percent">{formData.onboardingProgress}%</span>
               </div>
-              <button className="emp-detail-view-answers-btn">View Answers</button>
+              <button className="emp-detail-view-answers-btn" onClick={()=>alert('View Answers coming soon')}>View Answers</button>
             </div>
 
             <div className="emp-detail-checklist">
