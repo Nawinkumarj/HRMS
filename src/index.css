@@ -5196,11 +5196,15 @@ color: black!important;
 }
 
 .task-title {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 600;
-  color: var(--secondary);
+  /* color: var(--secondary); */
+  color:"fff";
   margin: 0;
   flex: 1;
+    font-size: 1rem;
+  font-weight: 300;
+  margin: 0 0 0.5rem 0;
 }
 
 .priority-badge {
