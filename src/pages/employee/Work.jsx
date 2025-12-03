@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import { TaskContext } from "../../context/TaskContext";
+import { useContext } from "react";
 
 export default function Work() {
+  const { dailyTask, addTask } = useContext(TaskContext);
+  // console.log(dailyTask, "tasks");
+  const dailyTasks= dailyTask;
+  
+
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -23,88 +30,9 @@ export default function Work() {
   });
 
   // Daily Tasks from Team Lead
-  const [dailyTasks, setDailyTasks] = useState([
-    {
-      id: 1,
-      title: "Implement User Authentication Module",
-      assignedBy: "Sarah Johnson (Team Lead)",
-      assignedDate: "2025-10-13",
-      dueDate: "2025-10-15",
-      priority: "High",
-      status: "In Progress",
-      description:
-        "Develop and integrate JWT-based authentication system with login, signup, and password reset functionality. Include OAuth integration for Google and GitHub.",
-      requirements: [
-        "JWT token generation and validation",
-        "Password hashing with bcrypt",
-        "OAuth 2.0 integration",
-        "Session management",
-        "Error handling",
-      ],
-      progress: 60,
-      category: "Work",
-    },
-    {
-      id: 2,
-      title: "Fix Payment Gateway Bug",
-      assignedBy: "Sarah Johnson (Team Lead)",
-      assignedDate: "2025-10-13",
-      dueDate: "2025-10-13",
-      priority: "Critical",
-      status: "Pending",
-      description:
-        "Investigate and resolve the payment processing failure occurring in production. Users are unable to complete transactions using credit cards.",
-      requirements: [
-        "Debug Stripe API integration",
-        "Check webhook configurations",
-        "Review transaction logs",
-        "Test with multiple payment methods",
-        "Deploy hotfix to production",
-      ],
-      progress: 0,
-      category: "Work",
-    },
-    {
-      id: 3,
-      title: "Update API Documentation",
-      assignedBy: "Sarah Johnson (Team Lead)",
-      assignedDate: "2025-10-12",
-      dueDate: "2025-10-14",
-      priority: "Medium",
-      status: "In Progress",
-      description:
-        "Update the API documentation with recent endpoint changes and new features. Include request/response examples and error codes.",
-      requirements: [
-        "Document new endpoints",
-        "Add code examples",
-        "Update authentication section",
-        "Review with backend team",
-        "Publish to developer portal",
-      ],
-      progress: 40,
-      category: "Work",
-    },
-    {
-      id: 4,
-      title: "Code Review - Dashboard Redesign",
-      assignedBy: "Sarah Johnson (Team Lead)",
-      assignedDate: "2025-10-13",
-      dueDate: "2025-10-13",
-      priority: "Medium",
-      status: "Completed",
-      description:
-        "Review the pull request for the new dashboard redesign. Check for code quality, performance issues, and UI/UX consistency.",
-      requirements: [
-        "Review React components",
-        "Check responsive design",
-        "Test performance metrics",
-        "Verify accessibility standards",
-        "Approve or request changes",
-      ],
-      progress: 100,
-      category: "Work",
-    },
-  ]);
+  // const [dailyTasks, setDailyTasks] = useState([
+   
+  // ]);
 
   const weeklyStats = {
     completed: 12,
@@ -142,7 +70,7 @@ export default function Work() {
 
   const handleNeedHelp = (task) => {
     alert(`Help requested for task: ${task.title}`);
-    // Implement help request logic here
+
   };
 
   const handleMarkComplete = (task) => {
@@ -150,7 +78,7 @@ export default function Work() {
       t.id === task.id ? { ...t, status: "Completed", progress: 100 } : t
     );
     setDailyTasks(updatedTasks);
-    alert(`Task marked as complete: ${task.title}`);
+    toast.success(`Task marked as complete: ${task.title}`);
   };
 
   const handleSendUpdate = (e) => {
@@ -159,7 +87,7 @@ export default function Work() {
     toast.success("Daily update sent successfully!");
     setShowUpdateModal(false);
     setUpdateForm({
-      to: "manager@company.com",
+      to: "vcraft@company.com",
       cc: "hr@company.com",
       subject: "",
       message: "",
@@ -181,35 +109,40 @@ export default function Work() {
   };
 
   const handleAddTask = (e) => {
-    e.preventDefault();
-    const task = {
-      id: dailyTasks.length + 1,
-      title: newTask.title,
-      assignedBy: "Self",
-      assignedDate: new Date().toISOString().split('T')[0],
-      dueDate: newTask.dueDate,
-      priority: newTask.priority,
-      status: "Pending",
-      description: newTask.description,
-      requirements: [],
-      progress: 0,
-      category: newTask.category,
-    };
-
-    setDailyTasks([...dailyTasks, task]);
-    setNewTask({
-      title: "",
-      description: "",
-      dueDate: "",
-      priority: "Medium",
-      category: "Personal",
-    });
-    setShowAddTaskModal(false);
-    toast.success("Task added successfully!");
+  e.preventDefault();
+  const task = {
+    id: dailyTasks.length + 1,
+    title: newTask.title,
+    assignedBy: "Self",
+    assignedDate: new Date().toISOString().split("T")[0],
+    dueDate: newTask.dueDate,
+    priority: newTask.priority,
+    status: "Pending",
+    description: newTask.description,
+    requirements: [],
+    progress: 0,
+    category: newTask.category,
   };
 
+  // setDailyTasks([...dailyTasks, task]);
+  addTask(task); 
+  setNewTask({
+    title: "",
+    description: "",
+    dueDate: "",
+    priority: "Medium",
+    category: "Personal",
+  });
+
+  setShowAddTaskModal(false);
+  toast.success("Task added successfully!");
+};
+
+
   const handleDeleteTask = (taskId, e) => {
-    e.stopPropagation();
+    if (e && e.stopPropagation) {
+      e.stopPropagation();
+    }
     if (window.confirm("Are you sure you want to delete this task?")) {
       const updatedTasks = dailyTasks.filter(task => task.id !== taskId);
       setDailyTasks(updatedTasks);
@@ -298,7 +231,6 @@ export default function Work() {
       <div className="performance-section">
         <h2 className="section-title">Weekly Performance</h2>
         <div className="stats-grid">
-          {/* ... (existing stats cards remain the same) */}
           <div className="stat-card glass-card">
             <div className="stat-icon completed-icon">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -401,10 +333,12 @@ export default function Work() {
               <div className="task-header">
                 <div className="task-title-section">
                   <h3 className="task-title">{task.title}</h3>
+                </div>
+                  <div>
                   <span className={`category-badge ${getCategoryColor(task.category)}`}>
                     {task.category}
                   </span>
-                </div>
+                  </div>
                 <div className="task-header-right">
                   <span
                     className={`priority-badge ${getPriorityColor(
@@ -424,6 +358,7 @@ export default function Work() {
                   )}
                 </div>
               </div>
+              
 
               <p className="task-description">{task.description}</p>
 
@@ -789,7 +724,7 @@ export default function Work() {
               {selectedTask.assignedBy === "Self" && (
                 <button
                   onClick={() => {
-                    handleDeleteTask(selectedTask.id, { stopPropagation: () => { } });
+                    handleDeleteTask(selectedTask.id);
                     setShowTaskModal(false);
                   }}
                   className="modal-action-btn delete-btn"
