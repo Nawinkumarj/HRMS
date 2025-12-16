@@ -1,79 +1,127 @@
-import React from 'react';
-import { holidays } from '../data/holidays';
+import React, { useState } from "react";
+import { holidays } from "../data/holidays";
+import "./../Styles/Sethu.css"; 
 
-const HolidayList = () => {
-  // Group holidays by year
-  const holidaysByYear = holidays.reduce((acc, holiday) => {
-    const year = new Date(holiday.date).getFullYear();
-    if (!acc[year]) {
-      acc[year] = [];
-    }
-    acc[year].push(holiday);
+const HolidayCalendar = () => {
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth();
+
+  const monthlyHolidays = holidays.filter((holiday) => {
+    const date = new Date(holiday.date);
+    return (
+      date.getFullYear() === currentYear && date.getMonth() === currentMonth
+    );
+  });
+
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
+
+  const prevMonth = () => {
+    setCurrentDate(
+      new Date(currentYear, currentMonth - 1, 1)
+    );
+  };
+
+  const nextMonth = () => {
+    setCurrentDate(
+      new Date(currentYear, currentMonth + 1, 1)
+    );
+  };
+
+  const monthName = currentDate.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
+
+  const holidayMap = monthlyHolidays.reduce((acc, h) => {
+    const day = new Date(h.date).getDate();
+    acc[day] = h;
     return acc;
   }, {});
 
-  // Format date
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const month = date.toLocaleDateString('en-US', { month: 'long' });
-    const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
-    return { day, month, weekday, fullDate: date };
-  };
+  const generateCalendarDays = () => {
+    const days = [];
 
-  // Check if holiday is upcoming
-  const isUpcoming = (dateString) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const holidayDate = new Date(dateString);
-    return holidayDate >= today;
+    for (let i = 0; i < firstDayIndex; i++) {
+      days.push(<div key={`empty-${i}`} className="day empty"></div>);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const holiday = holidayMap[day];
+      const today = new Date();
+      const isToday =
+        today.getDate() === day &&
+        today.getMonth() === currentMonth &&
+        today.getFullYear() === currentYear;
+
+      days.push(
+        <div
+          key={day}
+          className={`day ${holiday ? "holiday" : ""} ${
+            isToday ? "today" : ""
+          }`}
+        >
+          <div className="day-number">{day}</div>
+          {holiday && (
+            <div className="holiday-label">
+               {holiday.title}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return days;
   };
 
   return (
-    <div className="holiday-list-container">
-      <div className="holiday-list-header">
-        <h1 className="holiday-list-title">Company Holidays</h1>
-        <p className="holiday-list-subtitle">
-          Complete list of holidays for {Object.keys(holidaysByYear).join(' & ')}
-        </p>
+    <div className="calendar-wrapper">
+      {/* LEFT: Calendar */}
+      <div className="holiday-calendar-container">
+        <div className="calendar-header">
+          <button onClick={prevMonth}>‹</button>
+          <h2>{monthName}</h2>
+          <button onClick={nextMonth}>›</button>
+        </div>
+
+        <div className="calendar-grid">
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
+            <div key={d} className="weekday">
+              {d}
+            </div>
+          ))}
+          {generateCalendarDays()}
+        </div>
       </div>
 
-      {Object.entries(holidaysByYear).map(([year, yearHolidays]) => (
-        <div key={year} className="year-section">
-          <h2 className="year-title">{year}</h2>
-          <div className="holidays-list">
-            {yearHolidays.map((holiday, index) => {
-              const { day, month, weekday } = formatDate(holiday.date);
-              const upcoming = isUpcoming(holiday.date);
+      {/* RIGHT: Holiday List */}
+      <div className="holiday-list">
+        <h3>Holidays in {monthName}</h3>
 
-              return (
-                <div
-                  key={index}
-                  className={`holiday-item ${upcoming ? 'upcoming' : 'past'}`}
-                >
-                  <div className="holiday-date-section">
-                    <div className="date-box">
-                      <div className="date-day">{day}</div>
-                      <div className="date-month">{month.substring(0, 3).toUpperCase()}</div>
-                    </div>
-                  </div>
-
-                  <div className="holiday-details">
-                    <h3 className="holiday-title">{holiday.title}</h3>
-                    <p className="holiday-day">{weekday}</p>
-                  </div>
-
-                  {upcoming && (
-                    <div className="upcoming-badge">Upcoming</div>
-                  )}
+        {monthlyHolidays.length === 0 ? (
+          <p className="no-holidays">No holidays this month.</p>
+        ) : (
+          monthlyHolidays.map((h, idx) => {
+            const date = new Date(h.date);
+            return (
+              <div key={idx} className="holiday-item">
+                <div className="holiday-date">
+                  {date.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  })}
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      ))}
+                <div className="holiday-title">{h.title}</div>
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 };
 
-export default HolidayList;
+export default HolidayCalendar;
+ 

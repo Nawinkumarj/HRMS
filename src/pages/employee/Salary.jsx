@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import Payslip from '../../components/paySlip';
+import { toast } from 'react-toastify';
 
 export default function Salary() {
   const [selectedMonth, setSelectedMonth] = useState('');
@@ -36,18 +38,18 @@ export default function Salary() {
   };
 
   // Calculate totals
-  const grossSalary = 
-    salaryDetails.basicSalary + 
-    salaryDetails.hra + 
-    salaryDetails.specialAllowance + 
-    salaryDetails.conveyanceAllowance + 
-    salaryDetails.medicalAllowance + 
+  const grossSalary =
+    salaryDetails.basicSalary +
+    salaryDetails.hra +
+    salaryDetails.specialAllowance +
+    salaryDetails.conveyanceAllowance +
+    salaryDetails.medicalAllowance +
     salaryDetails.otherAllowance;
 
-  const totalDeductions = 
-    salaryDetails.providentFund + 
-    salaryDetails.professionalTax + 
-    salaryDetails.incomeTax + 
+  const totalDeductions =
+    salaryDetails.providentFund +
+    salaryDetails.professionalTax +
+    salaryDetails.incomeTax +
     salaryDetails.otherDeductions;
 
   const netSalary = grossSalary - totalDeductions;
@@ -67,48 +69,48 @@ export default function Salary() {
     { month: 'October', year: 2024, netPay: 73300, status: 'Paid', paidDate: '2024-10-31' },
   ];
 
-  const reimbursements = [
-    { 
-      id: 1, 
-      type: 'Travel', 
-      amount: 5000, 
-      date: '2025-09-15', 
-      status: 'Approved', 
+  const [reimbursements, setReimbursements] = useState([
+    {
+      id: 1,
+      type: 'Travel',
+      amount: 5000,
+      date: '2025-09-15',
+      status: 'Approved',
       approvedDate: '2025-09-18',
       description: 'Client visit to Mumbai',
       billAttached: true
     },
-    { 
-      id: 2, 
-      type: 'Medical', 
-      amount: 3500, 
-      date: '2025-08-22', 
-      status: 'Approved', 
+    {
+      id: 2,
+      type: 'Medical',
+      amount: 3500,
+      date: '2025-08-22',
+      status: 'Approved',
       approvedDate: '2025-08-25',
       description: 'Medical checkup expenses',
       billAttached: true
     },
-    { 
-      id: 3, 
-      type: 'Internet', 
-      amount: 1500, 
-      date: '2025-10-01', 
-      status: 'Pending', 
+    {
+      id: 3,
+      type: 'Internet',
+      amount: 1500,
+      date: '2025-10-01',
+      status: 'Pending',
       approvedDate: '-',
       description: 'Monthly internet bill',
       billAttached: true
     },
-    { 
-      id: 4, 
-      type: 'Food', 
-      amount: 2000, 
-      date: '2025-09-28', 
-      status: 'Rejected', 
+    {
+      id: 4,
+      type: 'Food',
+      amount: 2000,
+      date: '2025-09-28',
+      status: 'Rejected',
       approvedDate: '2025-10-02',
       description: 'Team lunch expenses',
       billAttached: false
     },
-  ];
+  ]);
 
   const taxSummary = {
     ytdGross: grossSalary * 9, // Year to date (9 months)
@@ -120,24 +122,42 @@ export default function Salary() {
   const handleDownloadPayslip = (month, year) => {
     console.log(`Downloading payslip for ${month} ${year}`);
     // Implement PDF download logic here
-    alert(`Payslip for ${month} ${year} will be downloaded`);
+
+
+    toast.success(`Payslip for ${month} ${year} will be downloaded`);
   };
 
-  const handleReimbursementSubmit = (e) => {
-    e.preventDefault();
-    console.log('Reimbursement request:', reimbursementForm);
-    // Handle file upload and API call here
-    alert('Reimbursement request submitted successfully!');
-    setShowReimbursementModal(false);
-    setReimbursementForm({
-      type: '',
-      amount: '',
-      description: '',
-      date: '',
-      billFile: null,
-      billFileName: ''
-    });
+ const handleReimbursementSubmit = (e) => {
+  e.preventDefault();
+
+  const newReimbursement = {
+    id: Date.now(),
+    type: reimbursementForm.type,
+    amount: Number(reimbursementForm.amount),
+    date: reimbursementForm.date,
+    description: reimbursementForm.description,
+    status: "Pending",
+    approvedDate: "-",
+    billAttached: reimbursementForm.billFile ? true : false,
+    billFile: reimbursementForm.billFile
   };
+  setReimbursements((prev) => [...prev, newReimbursement]);
+
+  toast.success("Reimbursement request submitted successfully!");
+
+  setShowReimbursementModal(false);
+
+  // RESET FORM
+  setReimbursementForm({
+    type: '',
+    amount: '',
+    description: '',
+    date: '',
+    billFile: null,
+    billFileName: ''
+  });
+};
+
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -157,6 +177,10 @@ export default function Salary() {
       minimumFractionDigits: 0
     }).format(amount);
   };
+  const handleClickReimbursement = () => {
+    console.log("clicked");
+
+  }
 
   return (
     <div className="salary-container">
@@ -170,7 +194,10 @@ export default function Salary() {
             </svg>
             Download Payslip
           </button>
-          <button onClick={() => setShowReimbursementModal(true)} className="reimbursement-btn">
+          <button onClick={() => {
+            setShowReimbursementModal(true)
+            handleClickReimbursement()
+          }} className="reimbursement-btn">
             <svg className="download-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
@@ -368,7 +395,7 @@ export default function Salary() {
                   </td>
                   <td>{reimbursement.approvedDate}</td>
                 </tr>
-              ))}
+              ))}      
             </tbody>
           </table>
         </div>
@@ -493,6 +520,8 @@ export default function Salary() {
         </div>
       )}
 
+
+
       {/* Reimbursement Request Modal */}
       {showReimbursementModal && (
         <div className="modal-overlay" onClick={() => setShowReimbursementModal(false)}>
@@ -615,7 +644,6 @@ export default function Salary() {
                   </div>
                 </div>
               </div>
-
               <div className="modal-footer">
                 <button
                   type="button"
@@ -632,6 +660,9 @@ export default function Salary() {
           </div>
         </div>
       )}
+      <div>
+        <paySlip/>
+      </div>
     </div>
   );
 }

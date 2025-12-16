@@ -1,18 +1,18 @@
 import Login from './pages/Login'
-import EmployeeDashboard from './pages/employee/employeeDashboard';
+import EmployeeDashboard from './pages/employee/EmployeeDashboard';
 import Hr from './pages/hr/HrAdmin'
 import Admin from './pages/admin/Admin'
 import SuperAdmin from './pages/superAdmin/SuperAdmin'
-import { AuthProvider } from './context/AuthContext';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import AppProviders from './context/AppContent';
 
 const App = () => {
   return (
     <div>
       <ToastContainer />
-      <AuthProvider>
+   <AppProviders>
         <Routes>
           <Route path='/' element={<Login />} />
           <Route path='/employee/*' element={<EmployeeDashboard />} />
@@ -20,7 +20,7 @@ const App = () => {
           <Route path='/hr/*' element={<Hr />} />
           <Route path='/superadmin/*' element={<SuperAdmin />} />
         </Routes>
-      </AuthProvider>
+   </AppProviders>
     </div>
   )
 }

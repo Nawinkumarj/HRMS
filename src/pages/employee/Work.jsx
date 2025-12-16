@@ -1,9 +1,18 @@
 import React, { useState } from "react";
+import { toast } from "react-toastify";
+import { TaskContext } from "../../context/TaskContext";
+import { useContext } from "react";
 
 export default function Work() {
+  const { dailyTask, addTask } = useContext(TaskContext);
+  // console.log(dailyTask, "tasks");
+  const dailyTasks= dailyTask;
+  
+
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [updateForm, setUpdateForm] = useState({
     to: "manager@company.com",
     cc: "hr@company.com",
@@ -12,85 +21,18 @@ export default function Work() {
     attachments: [],
   });
 
+  const [newTask, setNewTask] = useState({
+    title: "",
+    description: "",
+    dueDate: "",
+    priority: "Medium",
+    category: "Personal",
+  });
+
   // Daily Tasks from Team Lead
-  const dailyTasks = [
-    {
-      id: 1,
-      title: "Implement User Authentication Module",
-      assignedBy: "Sarah Johnson (Team Lead)",
-      assignedDate: "2025-10-13",
-      dueDate: "2025-10-15",
-      priority: "High",
-      status: "In Progress",
-      description:
-        "Develop and integrate JWT-based authentication system with login, signup, and password reset functionality. Include OAuth integration for Google and GitHub.",
-      requirements: [
-        "JWT token generation and validation",
-        "Password hashing with bcrypt",
-        "OAuth 2.0 integration",
-        "Session management",
-        "Error handling",
-      ],
-      progress: 60,
-    },
-    {
-      id: 2,
-      title: "Fix Payment Gateway Bug",
-      assignedBy: "Sarah Johnson (Team Lead)",
-      assignedDate: "2025-10-13",
-      dueDate: "2025-10-13",
-      priority: "Critical",
-      status: "Pending",
-      description:
-        "Investigate and resolve the payment processing failure occurring in production. Users are unable to complete transactions using credit cards.",
-      requirements: [
-        "Debug Stripe API integration",
-        "Check webhook configurations",
-        "Review transaction logs",
-        "Test with multiple payment methods",
-        "Deploy hotfix to production",
-      ],
-      progress: 0,
-    },
-    {
-      id: 3,
-      title: "Update API Documentation",
-      assignedBy: "Sarah Johnson (Team Lead)",
-      assignedDate: "2025-10-12",
-      dueDate: "2025-10-14",
-      priority: "Medium",
-      status: "In Progress",
-      description:
-        "Update the API documentation with recent endpoint changes and new features. Include request/response examples and error codes.",
-      requirements: [
-        "Document new endpoints",
-        "Add code examples",
-        "Update authentication section",
-        "Review with backend team",
-        "Publish to developer portal",
-      ],
-      progress: 40,
-    },
-    {
-      id: 4,
-      title: "Code Review - Dashboard Redesign",
-      assignedBy: "Sarah Johnson (Team Lead)",
-      assignedDate: "2025-10-13",
-      dueDate: "2025-10-13",
-      priority: "Medium",
-      status: "Completed",
-      description:
-        "Review the pull request for the new dashboard redesign. Check for code quality, performance issues, and UI/UX consistency.",
-      requirements: [
-        "Review React components",
-        "Check responsive design",
-        "Test performance metrics",
-        "Verify accessibility standards",
-        "Approve or request changes",
-      ],
-      progress: 100,
-    },
-  ];
+  // const [dailyTasks, setDailyTasks] = useState([
+   
+  // ]);
 
   const weeklyStats = {
     completed: 12,
@@ -128,21 +70,24 @@ export default function Work() {
 
   const handleNeedHelp = (task) => {
     alert(`Help requested for task: ${task.title}`);
-    // Implement help request logic here
+
   };
 
   const handleMarkComplete = (task) => {
-    alert(`Task marked as complete: ${task.title}`);
-    // Implement complete task logic here
+    const updatedTasks = dailyTasks.map(t =>
+      t.id === task.id ? { ...t, status: "Completed", progress: 100 } : t
+    );
+    setDailyTasks(updatedTasks);
+    toast.success(`Task marked as complete: ${task.title}`);
   };
 
   const handleSendUpdate = (e) => {
     e.preventDefault();
     console.log("Sending update:", updateForm);
-    alert("Daily update sent successfully!");
+    toast.success("Daily update sent successfully!");
     setShowUpdateModal(false);
     setUpdateForm({
-      to: "manager@company.com",
+      to: "vcraft@company.com",
       cc: "hr@company.com",
       subject: "",
       message: "",
@@ -161,6 +106,47 @@ export default function Work() {
   const removeAttachment = (index) => {
     const newAttachments = updateForm.attachments.filter((_, i) => i !== index);
     setUpdateForm({ ...updateForm, attachments: newAttachments });
+  };
+
+  const handleAddTask = (e) => {
+  e.preventDefault();
+  const task = {
+    id: dailyTasks.length + 1,
+    title: newTask.title,
+    assignedBy: "Self",
+    assignedDate: new Date().toISOString().split("T")[0],
+    dueDate: newTask.dueDate,
+    priority: newTask.priority,
+    status: "Pending",
+    description: newTask.description,
+    requirements: [],
+    progress: 0,
+    category: newTask.category,
+  };
+
+  // setDailyTasks([...dailyTasks, task]);
+  addTask(task); 
+  setNewTask({
+    title: "",
+    description: "",
+    dueDate: "",
+    priority: "Medium",
+    category: "Personal",
+  });
+
+  setShowAddTaskModal(false);
+  toast.success("Task added successfully!");
+};
+
+
+  const handleDeleteTask = (taskId, e) => {
+    if (e && e.stopPropagation) {
+      e.stopPropagation();
+    }
+    if (window.confirm("Are you sure you want to delete this task?")) {
+      const updatedTasks = dailyTasks.filter(task => task.id !== taskId);
+      setDailyTasks(updatedTasks);
+    }
   };
 
   const getPriorityColor = (priority) => {
@@ -191,6 +177,21 @@ export default function Work() {
     }
   };
 
+  const getCategoryColor = (category) => {
+    switch (category) {
+      case "Work":
+        return "category-work";
+      case "Personal":
+        return "category-personal";
+      case "Learning":
+        return "category-learning";
+      case "Urgent":
+        return "category-urgent";
+      default:
+        return "category-work";
+    }
+  };
+
   return (
     <div className="work-container">
       <div className="work-header glass-card">
@@ -198,18 +199,35 @@ export default function Work() {
           <h1 className="work-title">Work Dashboard</h1>
           <p className="work-subtitle">Manage your daily tasks and updates</p>
         </div>
-        <button onClick={() => setShowUpdateModal(true)} className="update-btn">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-            />
-          </svg>
-          Send Daily Update
-        </button>
+        <div className="header-actions">
+          <button
+            onClick={() => setShowAddTaskModal(true)}
+            className="add-task-btn"
+          >
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            Add Task
+          </button>
+          <button onClick={() => setShowUpdateModal(true)} className="update-btn">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+            Send Daily Update
+          </button>
+        </div>
       </div>
+
       <div className="performance-section">
         <h2 className="section-title">Weekly Performance</h2>
         <div className="stats-grid">
@@ -294,7 +312,17 @@ export default function Work() {
 
       {/* Daily Tasks Section */}
       <div className="tasks-section">
-        <h2 className="section-title">Daily Tasks</h2>
+        <div className="section-header">
+          <h2 className="section-title">Daily Tasks</h2>
+          <div className="task-filters">
+            <span className="filter-label">Filter by:</span>
+            <select className="filter-select">
+              <option value="all">All Tasks</option>
+              <option value="work">Work Tasks</option>
+              <option value="personal">Personal Tasks</option>
+            </select>
+          </div>
+        </div>
         <div className="tasks-grid">
           {dailyTasks.map((task) => (
             <div
@@ -303,15 +331,34 @@ export default function Work() {
               onClick={() => handleTaskClick(task)}
             >
               <div className="task-header">
-                <h3 className="task-title">{task.title}</h3>
-                <span
-                  className={`priority-badge ${getPriorityColor(
-                    task.priority
-                  )}`}
-                >
-                  {task.priority}
-                </span>
+                <div className="task-title-section">
+                  <h3 className="task-title">{task.title}</h3>
+                </div>
+                  <div>
+                  <span className={`category-badge ${getCategoryColor(task.category)}`}>
+                    {task.category}
+                  </span>
+                  </div>
+                <div className="task-header-right">
+                  <span
+                    className={`priority-badge ${getPriorityColor(
+                      task.priority
+                    )}`}
+                  >
+                    {task.priority}
+                  </span>
+                  {task.assignedBy === "Self" && (
+                    <button
+                      onClick={(e) => handleDeleteTask(task.id, e)}
+                      className="delete-task-btn"
+                      title="Delete task"
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
               </div>
+              
 
               <p className="task-description">{task.description}</p>
 
@@ -449,6 +496,128 @@ export default function Work() {
         </div>
       </div>
 
+      {/* Add Task Modal */}
+      {showAddTaskModal && (
+        <div
+          className="modal-overlay"
+          onClick={() => setShowAddTaskModal(false)}
+        >
+          <div
+            className="modal-content task-modal glass-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2 className="modal-title">Add New Task</h2>
+              <button
+                onClick={() => setShowAddTaskModal(false)}
+                className="close-button"
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={handleAddTask}>
+              <div className="modal-body">
+                <div className="form-field">
+                  <label className="form-label">Task Title *</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="Enter task title"
+                    value={newTask.title}
+                    onChange={(e) =>
+                      setNewTask({ ...newTask, title: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Description</label>
+                  <textarea
+                    className="form-textarea"
+                    rows="3"
+                    placeholder="Enter task description"
+                    value={newTask.description}
+                    onChange={(e) =>
+                      setNewTask({ ...newTask, description: e.target.value })
+                    }
+                  ></textarea>
+                </div>
+
+                <div className="form-row">
+                  <div className="form-field">
+                    <label className="form-label">Due Date</label>
+                    <input
+                      type="date"
+                      className="form-input"
+                      value={newTask.dueDate}
+                      onChange={(e) =>
+                        setNewTask({ ...newTask, dueDate: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div className="form-field">
+                    <label className="form-label">Priority</label>
+                    <select
+                      className="form-select"
+                      value={newTask.priority}
+                      onChange={(e) =>
+                        setNewTask({ ...newTask, priority: e.target.value })
+                      }
+                    >
+                      <option value="Low">Low</option>
+                      <option value="Medium">Medium</option>
+                      <option value="High">High</option>
+                      <option value="Critical">Critical</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="form-field">
+                  <label className="form-label">Category</label>
+                  <select
+                    className="form-select"
+                    value={newTask.category}
+                    onChange={(e) =>
+                      setNewTask({ ...newTask, category: e.target.value })
+                    }
+                  >
+                    <option value="Personal">Personal</option>
+                    <option value="Work">Work</option>
+                    <option value="Learning">Learning</option>
+                    <option value="Urgent">Urgent</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  onClick={() => setShowAddTaskModal(false)}
+                  className="modal-action-btn cancel-btn"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="modal-action-btn add-btn">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  Add Task
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Existing modals for task details and email updates remain the same */}
       {showTaskModal && selectedTask && (
         <div className="modal-overlay" onClick={() => setShowTaskModal(false)}>
           <div
@@ -481,6 +650,9 @@ export default function Work() {
                 >
                   {selectedTask.status}
                 </span>
+                <span className={`category-badge ${getCategoryColor(selectedTask.category)}`}>
+                  {selectedTask.category}
+                </span>
               </div>
 
               <div className="detail-section">
@@ -488,14 +660,16 @@ export default function Work() {
                 <p className="detail-text">{selectedTask.description}</p>
               </div>
 
-              <div className="detail-section">
-                <h4 className="detail-heading">Requirements</h4>
-                <ul className="requirements-list">
-                  {selectedTask.requirements.map((req, index) => (
-                    <li key={index}>{req}</li>
-                  ))}
-                </ul>
-              </div>
+              {selectedTask.requirements && selectedTask.requirements.length > 0 && (
+                <div className="detail-section">
+                  <h4 className="detail-heading">Requirements</h4>
+                  <ul className="requirements-list">
+                    {selectedTask.requirements.map((req, index) => (
+                      <li key={index}>{req}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <div className="detail-row">
                 <div className="detail-item">
@@ -547,12 +721,22 @@ export default function Work() {
                   </button>
                 </>
               )}
+              {selectedTask.assignedBy === "Self" && (
+                <button
+                  onClick={() => {
+                    handleDeleteTask(selectedTask.id);
+                    setShowTaskModal(false);
+                  }}
+                  className="modal-action-btn delete-btn"
+                >
+                  Delete Task
+                </button>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* poc */}
       {showUpdateModal && (
         <div
           className="modal-overlay"
