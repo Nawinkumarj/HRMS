@@ -11,6 +11,7 @@ import Salary from './Salary'
 import HolidayList from '../../components/HolidayList';
 import Chat from '../../components/chat';
 import HelpSupport from '../../components/HelpSupport';
+import HiringRole from '../../components/HiringRole';
 
 const menuItems = [
   { path: '/employee/dashboard', icon: assets.dashboardIcon, alt: 'Dashboard' },
@@ -44,6 +45,8 @@ const EmployeeDashboard = () => {
             <Route path="profile" element={<Profile />} />
             <Route path='inbox' element={<Chat/>}/>
             <Route path="help" element={<HelpSupport />} />
+            <Route path="hiringrole" element={<HiringRole/>} />
+            <Route path="*" element={<div>Page Not Found</div>} />
       </Routes>
       </div> 
     </div>

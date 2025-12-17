@@ -1,6 +1,5 @@
 /* FONT */
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap");
-
 /* DEFAULT */
 * {
     padding: 0;
@@ -9,10 +8,12 @@
 }
 
 body {
-    font-family: "Outfit", serif;
-    background-color: #F7F7F7;
+  font-family: "Inter", sans-serif;
 }
 
+h1, h2, h3 {
+  font-family: "Outfit", sans-serif;
+}
 ::-webkit-scrollbar {
     display: none;
 }
@@ -194,7 +195,7 @@ a {
     border-radius: 8px;
     flex-direction: column;
     gap: 15px;
-    /* overflow: scroll; */
+    overflow: scroll;
 }
 
 .SideBarIcon img {
@@ -7880,7 +7881,7 @@ color: black!important;
 
 /* Tasklist Starts */
 
-.task-container {
+/* .task-container {
   width: 340px;
   max-width: 100vw;
   background: #fff;
@@ -7889,9 +7890,9 @@ color: black!important;
   padding: 24px;
   font-family: 'Inter', Arial, sans-serif;
   margin: auto;
-}
+} */
 
-.task-header {
+/* .task-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -7929,7 +7930,7 @@ color: black!important;
   padding: 14px 14px 8px 14px;
   border-radius: 12px;
   margin-bottom: 20px;
-}
+} */
 
 .input {
   border: 1px solid #ede6f4;
@@ -8094,5 +8095,11 @@ color: black!important;
   margin-right: 1px;
 }
 
+.absent-icon{
+  color: #FF6B6B;
+  margin-right: 4px; 
+  border-radius: 10%; 
+
+}
 
 /* Tasklist ends */

@@ -1,7 +1,7 @@
+// Complete EmployeeMessage Component with Restricted Chats
 import { Link } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import "./../Styles/Sethu.css"; 
-
+import "./../Styles/Sethu.css";
 
 const EmployeeMessage = () => {
   const [chats, setChats] = useState([]);
@@ -9,6 +9,9 @@ const EmployeeMessage = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [message, setMessage] = useState("");
   const messagesEndRef = useRef(null);
+
+  // Chats that cannot be opened fully
+  const restrictedChats = ["CEO", "Manager", "HR Team"]; // add more if needed
 
   // Profile Images
   const profileImages = {
@@ -22,20 +25,14 @@ const EmployeeMessage = () => {
     rebecca: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150",
     lori: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&h=150",
     linda: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150",
-    sarah: "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?w=150&h=150",
-    jennifer: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150",
-    emily: "https://images.unsplash.com/photo-1489424731084-a5d8b219a5bb?w=150&h=150",
     currentUser: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150",
-    grpIcon: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300&h=300&crop=faces&fit=crop"
-
+    grpIcon: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=300&h=300&crop=faces&fit=crop",
   };
 
-  // Mock Chats
   const mockChats = [
     {
       id: 1,
       name: "Sethu",
-      // avatar: profileImages.stephan,
       status: "online",
       lastMessage: "is typing...",
       time: "02:40 PM",
@@ -46,6 +43,7 @@ const EmployeeMessage = () => {
         { id: 2, text: "Do you have a moment?", sender: "them", time: "08:01 AM" },
         { id: 3, text: "Sure, what's up?", sender: "me", time: "08:02 AM" }
       ],
+      avatar: profileImages.stephan,
     },
     {
       id: 2,
@@ -60,21 +58,29 @@ const EmployeeMessage = () => {
       ],
     },
     {
-  id: 3,
-  name: "HR Team",
-    avatar: profileImages.grpIcon,
-  group: true,
-  members: ["Sethu", "Nawin", "Harish"],
-
-  lastMessage: "nawin: Updated leave policy",
-  messages: [
-    { id: 1, text: "Upload the new leave circular", senderName: "Sethu", sender: "them", time: "08:00 AM" },
-    { id: 2, text: "Done, uploaded", senderName: "Harish", sender: "them", time: "08:05 AM" },
-    { id: 3, text: "Thanks!", senderName: "Me", sender: "me", time: "08:06 AM" }
-  ],
-}
-
- 
+      id: 3,
+      name: "HR Team",
+      avatar: profileImages.grpIcon,
+      group: true,
+      lastMessage: "nawin: Updated leave policy",
+      messages: [
+        { id: 1, text: "Upload the new leave circular", senderName: "Sethu", sender: "them", time: "08:00 AM" },
+        { id: 2, text: "Done, uploaded", senderName: "Harish", sender: "them", time: "08:05 AM" },
+        { id: 3, text: "Thanks!", senderName: "Me", sender: "me", time: "08:06 AM" }
+      ],
+    },
+    {
+      id: 4,
+      name: "Company Announcements",
+      avatar: profileImages.grpIcon,
+      group: true,
+      readOnly: true,       
+      lastMessage: "Official Notices Only",
+      messages: [
+                { id: 1, text: "Upload the new leave circular", senderName: "Sethu", sender: "them", time: "08:00 AM" },
+        { id: 2, text: "Done, uploaded", senderName: "Harish", sender: "them", time: "08:05 AM" },
+      ],         
+    }
   ];
 
   useEffect(() => {
@@ -94,9 +100,20 @@ const EmployeeMessage = () => {
     chat.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleSelectChat = (chat) => {
+    if (restrictedChats.includes(chat.name)) {
+      setSelectedChat({ ...chat, restricted: true });
+    } else if (chat.readOnly) {
+      setSelectedChat({ ...chat, readOnly: true });
+    } else {
+      setSelectedChat(chat);
+    }
+  };
+
+
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!message.trim() || !selectedChat) return;
+    if (!message.trim() || !selectedChat || selectedChat.restricted) return;
 
     const newMsg = {
       id: Date.now(),
@@ -111,12 +128,12 @@ const EmployeeMessage = () => {
     const updatedChats = chats.map((chat) =>
       chat.id === selectedChat.id
         ? {
-            ...chat,
-            messages: [...chat.messages, newMsg],
-            lastMessage: message,
-            time: newMsg.time,
-            unread: 0,
-          }
+          ...chat,
+          messages: [...chat.messages, newMsg],
+          lastMessage: message,
+          time: newMsg.time,
+          unread: 0,
+        }
         : chat
     );
 
@@ -147,8 +164,9 @@ const EmployeeMessage = () => {
           {filteredChats.map((chat) => (
             <div
               key={chat.id}
-              className={`chat-item ${selectedChat?.id === chat.id ? "active" : ""}`}
-              onClick={() => setSelectedChat(chat)}
+              className={`chat-item ${selectedChat?.id === chat.id ? "active" : ""
+                } ${restrictedChats.includes(chat.name) ? "disabled-chat" : ""}`}
+              onClick={() => handleSelectChat(chat)}
             >
               <img src={chat.avatar} className="chat-avatar" alt="" />
 
@@ -180,51 +198,61 @@ const EmployeeMessage = () => {
       {/* Chat Main */}
       <div className="chat-main">
         {selectedChat ? (
-          <>
-            {/* Header */}
-            <div className="chat-top-bar">
-              <img src={selectedChat.avatar} className="chat-top-avatar" alt="" />
-              <div>
-                <h4>{selectedChat.name}</h4>
-                <span className="status-text">
-                  {selectedChat.isTyping ? "Typing..." : selectedChat.status}
-                </span>
-              </div>
+          selectedChat.restricted ? (
+            <div className="no-chat-selected">
+              ❌ You are not allowed to message this chat.
             </div>
-            
-
-            {/* Messages */}
-            <div className="chat-messages">
-              {selectedChat.messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`message-bubble ${msg.sender === "me" ? "me" : "them"}`}
-                >
-                  <p>{msg.text}</p>
-                  <span className="msg-time">{msg.time}</span>
+          ) : (
+            <>
+              {/* Header */}
+              <div className="chat-top-bar">
+                <img
+                  src={selectedChat.avatar}
+                  className="chat-top-avatar"
+                  alt=""
+                />
+                <div>
+                  <h4>{selectedChat.name}</h4>
+                  <span className="status-text">
+                    {selectedChat.isTyping ? "Typing..." : selectedChat.status}
+                  </span>
                 </div>
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
+              </div>
 
-            {/* Footer */}
-            <form className="chat-footer" onSubmit={handleSendMessage}>
-              <input
-                type="text"
-                className="chat-input"
-                placeholder="Write your message..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-              />
+              {/* Messages */}
+              <div className="chat-messages">
+                {selectedChat.messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`message-bubble ${msg.sender === "me" ? "me" : "them"}`}
+                  >
+                    <p>{msg.text}</p>
+                    <span className="msg-time">{msg.time}</span>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
 
-              <button type="submit" className="send-btn">
-          <i class="bi bi-send-fill"></i>
+              {selectedChat?.restricted || selectedChat?.readOnly ? 
+              (<div className="read-only-note">🔒 Read-Only Chat</div>
+              ) : (
+                <form className="chat-footer" onSubmit={handleSendMessage}>
+                  <input
+                    type="text"
+                    className="chat-input"
+                    placeholder="Write your message..."
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                  />
 
+                  <button type="submit" className="send-btn">
+                    <i className="bi bi-send-fill"></i>
+                  </button>
+                </form>
+              )}
 
-
-              </button>
-            </form>
-          </>
+            </>
+          )
         ) : (
           <div className="no-chat-selected">Select a chat to begin.</div>
         )}
