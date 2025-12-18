@@ -6,12 +6,21 @@ import CheckInOut from '../../components/CheckInOut'
 import PerformanceChart from '../../components/PerformanceChart'
 import MiniCalendar from '../../components/MiniCalendar'
 import { AttendanceProvider } from '../../context/AttendanceContext'
-import Assets  from '../../components/Assets'
+import Assets from '../../components/Assets'
 import Hiring from '../../components/Hiring'
 import ProgressBar from '../../components/ProgressBar'
 import Task from '../../components/Task'
+import { useNavigate } from 'react-router-dom'
+import EmployeeSchedule from '../../components/employeeSchedule'
 
 const MainDashboard = () => {
+
+  const navigate = useNavigate()
+
+  const handleRoute = () => {
+    debugger
+    navigate('/employee/attendance')
+  }
   return (
     <div className='MainDashboard'>
 
@@ -22,44 +31,45 @@ const MainDashboard = () => {
         </div>
         <div>
           <AttendanceProvider>
-          <CheckInOut />
+            <CheckInOut />
           </AttendanceProvider>
         </div>
         <div className='col3'>
           <BirthdayCard />
           <HolidayCard />
         </div>
-        <div>
+        {/* <div>
           <WeatherCard />
+        </div> */}
+
+        <div>
+          <Assets />
         </div>
       </div>
 
       {/* 2nd Section */}
       <div className='MiddleSection'>
         <div>
-          <Assets />
-        </div>
-        <div>
           <PerformanceChart />
         </div>
         <div>
           <MiniCalendar />
         </div>
-      </div>
-      <div className="ThirdSection">
         <div>
           <Hiring />
         </div>
-        <div>
-          <ProgressBar/>
-        </div>
-      <div>
-        <Task/>
       </div>
-        <div>
-          
+      <div className="ThirdSection">
+        <div onClick={handleRoute} style={{ cursor: 'pointer' }}>
+          <ProgressBar />
         </div>
-        
+        <div >
+          <Task />
+        </div>
+        <div>
+          <EmployeeSchedule />
+        </div>
+
       </div>
 
     </div>

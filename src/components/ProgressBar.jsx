@@ -31,7 +31,7 @@ const WorkingFormatChart = () => {
         justifyContent: "center",
         backgroundColor: "#121212",
         minHeight: "45vh",
-        padding: "2rem",
+        padding: "1rem",
         borderRadius:"10px",
         paddingTop:"10px"
       }}

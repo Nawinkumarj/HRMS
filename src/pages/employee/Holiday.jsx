@@ -1,9 +1,73 @@
 import React, { useState } from 'react';
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 const Holiday = () => {
   const [activeTab, setActiveTab] = useState('balance');
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [showCompOffModal, setShowCompOffModal] = useState(false);
+
+
+  const leaveValidationSchema = Yup.object().shape({
+    type: Yup.string().required('Leave type is required'),
+    from: Yup.date()
+      .required('From date is required')
+      .min(new Date(), 'From date cannot be in the past')
+      .nullable(),
+    to: Yup.date()
+      .required('To date is required')
+      .min(Yup.ref('from'), 'To date must be after or equal to from date')
+      .nullable(),
+    reason: Yup.string()
+      .required('Reason is required')
+      .min(10, 'Reason must be at least 10 characters')
+      .max(500, 'Reason cannot exceed 500 characters')
+  });
+
+  const compOffValidationSchema = Yup.object().shape({
+    date: Yup.date()
+      .required('Date worked is required')
+      .max(new Date(), 'Date worked cannot be in the future')
+      .nullable(),
+    reason: Yup.string()
+      .required('Reason is required')
+      .min(10, 'Reason must be at least 10 characters')
+      .max(500, 'Reason cannot exceed 500 characters')
+  });
+
+  // Initial values for forms
+  const leaveInitialValues = {
+    type: 'casual',
+    from: '',
+    to: '',
+    reason: ''
+  };
+
+  const compOffInitialValues = {
+    date: '',
+    reason: ''
+  };
+
+  // Form submission handlers
+  const handleLeaveSubmit = (values, { resetForm, setSubmitting }) => {
+    console.log('Leave application:', values);
+    // Simulate API call
+    setTimeout(() => {
+      setShowApplyModal(false);
+      resetForm();
+      setSubmitting(false);
+    }, 1000);
+  };
+
+  const handleCompOffSubmit = (values, { resetForm, setSubmitting }) => {
+    console.log('Comp off request:', values);
+    // Simulate API call
+    setTimeout(() => {
+      setShowCompOffModal(false);
+      resetForm();
+      setSubmitting(false);
+    }, 1000);
+  };
 
   // Leave Balance
   const leaveBalance = {
@@ -26,32 +90,6 @@ const Holiday = () => {
     { id: 2, date: '2025-09-23', reason: 'Emergency support', status: 'Approved', expiryDate: '2026-03-23' },
     { id: 3, date: '2025-10-05', reason: 'Client presentation', status: 'Pending', expiryDate: '-' },
   ];
-
-  const [leaveForm, setLeaveForm] = useState({
-    type: 'casual',
-    from: '',
-    to: '',
-    reason: ''
-  });
-
-  const [compOffForm, setCompOffForm] = useState({
-    date: '',
-    reason: ''
-  });
-
-  const handleLeaveSubmit = (e) => {
-    e.preventDefault();
-    console.log('Leave application:', leaveForm);
-    setShowApplyModal(false);
-    setLeaveForm({ type: 'casual', from: '', to: '', reason: '' });
-  };
-
-  const handleCompOffSubmit = (e) => {
-    e.preventDefault();
-    console.log('Comp off request:', compOffForm);
-    setShowCompOffModal(false);
-    setCompOffForm({ date: '', reason: '' });
-  };
 
   return (
     <div className="leave-management-container">
@@ -248,118 +286,171 @@ const Holiday = () => {
           <div className="modal-content leave-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">Apply for Leave</h2>
-              <button onClick={() => setShowApplyModal(false)} className="close-button">×</button>
+              <button 
+                onClick={() => setShowApplyModal(false)} 
+                className="close-button"
+                type="button"
+              >
+                ×
+              </button>
             </div>
+            
+            <Formik
+              initialValues={leaveInitialValues}
+              validationSchema={leaveValidationSchema}
+              onSubmit={handleLeaveSubmit}
+            >
+              {({ isSubmitting, setFieldValue, values, errors, touched }) => (
+                <Form>
+                  <div className="modal-body">
+                    <div className="form-group">
+                      <label className="form-label">Leave Type</label>
+                      <Field
+                        as="select"
+                        name="type"
+                        className="form-input"
+                      >
+                        <option value="casual">Casual Leave</option>
+                        <option value="sick">Sick Leave</option>
+                        <option value="earned">Earned Leave</option>
+                        <option value="compoff">Comp Off</option>
+                      </Field>
+                      <ErrorMessage name="type" component="div" className="error-message" />
+                    </div>
 
-            <form onSubmit={handleLeaveSubmit}>
-              <div className="modal-body">
-                <div className="form-group">
-                  <label className="form-label">Leave Type</label>
-                  <select
-                    className="form-input"
-                    value={leaveForm.type}
-                    onChange={(e) => setLeaveForm({ ...leaveForm, type: e.target.value })}
-                    required
-                  >
-                    <option value="casual">Casual Leave</option>
-                    <option value="sick">Sick Leave</option>
-                    <option value="earned">Earned Leave</option>
-                    <option value="compoff">Comp Off</option>
-                  </select>
-                </div>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label className="form-label">From Date</label>
+                        <Field
+                          type="date"
+                          name="from"
+                          className={`form-input ${touched.from && errors.from ? 'error' : ''}`}
+                          onChange={(e) => {
+                            setFieldValue('from', e.target.value);
+                            // If to date is before the new from date, reset it
+                            if (values.to && new Date(e.target.value) > new Date(values.to)) {
+                              setFieldValue('to', e.target.value);
+                            }
+                          }}
+                        />
+                        <ErrorMessage name="from" component="div" className="error-message" />
+                      </div>
 
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">From Date</label>
-                    <input
-                      type="date"
-                      className="form-input"
-                      value={leaveForm.from}
-                      onChange={(e) => setLeaveForm({ ...leaveForm, from: e.target.value })}
-                      required
-                    />
+                      <div className="form-group">
+                        <label className="form-label">To Date</label>
+                        <Field
+                          type="date"
+                          name="to"
+                          className={`form-input ${touched.to && errors.to ? 'error' : ''}`}
+                          min={values.from}
+                        />
+                        <ErrorMessage name="to" component="div" className="error-message" />
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Reason</label>
+                      <Field
+                        as="textarea"
+                        name="reason"
+                        className={`form-input form-textarea ${touched.reason && errors.reason ? 'error' : ''}`}
+                        rows="4"
+                        placeholder="Enter reason for leave..."
+                      />
+                      <ErrorMessage name="reason" component="div" className="error-message" />
+                    </div>
                   </div>
 
-                  <div className="form-group">
-                    <label className="form-label">To Date</label>
-                    <input
-                      type="date"
-                      className="form-input"
-                      value={leaveForm.to}
-                      onChange={(e) => setLeaveForm({ ...leaveForm, to: e.target.value })}
-                      required
-                    />
+                  <div className="modal-footer">
+                    <button 
+                      type="button" 
+                      onClick={() => setShowApplyModal(false)} 
+                      className="cancel-button"
+                      disabled={isSubmitting}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="refer-button"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? 'Submitting...' : 'Submit Application'}
+                    </button>
                   </div>
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Reason</label>
-                  <textarea
-                    className="form-input form-textarea"
-                    value={leaveForm.reason}
-                    onChange={(e) => setLeaveForm({ ...leaveForm, reason: e.target.value })}
-                    rows="4"
-                    placeholder="Enter reason for leave..."
-                    required
-                  ></textarea>
-                </div>
-              </div>
-
-              <div className="modal-footer">
-                <button type="button" onClick={() => setShowApplyModal(false)} className="cancel-button">
-                  Cancel
-                </button>
-                <button type="submit" className="refer-button">
-                  Submit Application
-                </button>
-              </div>
-            </form>
+                </Form>
+              )}
+            </Formik>
           </div>
         </div>
       )}
+      
+
       {showCompOffModal && (
         <div className="modal-overlay" onClick={() => setShowCompOffModal(false)}>
           <div className="modal-content leave-modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">Request Comp Off</h2>
-              <button onClick={() => setShowCompOffModal(false)} className="close-button">×</button>
+              <button 
+                onClick={() => setShowCompOffModal(false)} 
+                className="close-button"
+                type="button"
+              >
+                ×
+              </button>
             </div>
+            
+            <Formik
+              initialValues={compOffInitialValues}
+              validationSchema={compOffValidationSchema}
+              onSubmit={handleCompOffSubmit}
+            >
+              {({ isSubmitting, touched, errors }) => (
+                <Form>
+                  <div className="modal-body">
+                    <div className="form-group">
+                      <label className="form-label">Date Worked</label>
+                      <Field
+                        type="date"
+                        name="date"
+                        className={`form-input ${touched.date && errors.date ? 'error' : ''}`}
+                      />
+                      <ErrorMessage name="date" component="div" className="error-message" />
+                    </div>
 
-            <form onSubmit={handleCompOffSubmit}>
-              <div className="modal-body">
-                <div className="form-group">
-                  <label className="form-label">Date Worked</label>
-                  <input
-                    type="date"
-                    className="form-input"
-                    value={compOffForm.date}
-                    onChange={(e) => setCompOffForm({ ...compOffForm, date: e.target.value })}
-                    required
-                  />
-                </div>
+                    <div className="form-group">
+                      <label className="form-label">Reason</label>
+                      <Field
+                        as="textarea"
+                        name="reason"
+                        className={`form-input form-textarea ${touched.reason && errors.reason ? 'error' : ''}`}
+                        rows="4"
+                        placeholder="Explain why you worked on this day (e.g., weekend deployment, emergency support)..."
+                      />
+                      <ErrorMessage name="reason" component="div" className="error-message" />
+                    </div>
+                  </div>
 
-                <div className="form-group">
-                  <label className="form-label">Reason</label>
-                  <textarea
-                    className="form-input form-textarea"
-                    value={compOffForm.reason}
-                    onChange={(e) => setCompOffForm({ ...compOffForm, reason: e.target.value })}
-                    rows="4"
-                    placeholder="Explain why you worked on this day (e.g., weekend deployment, emergency support)..."
-                    required
-                  ></textarea>
-                </div>
-              </div>
-
-              <div className="modal-footer">
-                <button type="button" onClick={() => setShowCompOffModal(false)} className="cancel-button">
-                  Cancel
-                </button>
-                <button type="submit" className="refer-button">
-                  Submit Request
-                </button>
-              </div>
-            </form>
+                  <div className="modal-footer">
+                    <button 
+                      type="button" 
+                      onClick={() => setShowCompOffModal(false)} 
+                      className="cancel-button"
+                      disabled={isSubmitting}
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      type="submit" 
+                      className="refer-button"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? 'Submitting...' : 'Submit Request'}
+                    </button>
+                  </div>
+                </Form>
+              )}
+            </Formik>
           </div>
         </div>
       )}

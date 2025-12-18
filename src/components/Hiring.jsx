@@ -62,7 +62,7 @@ export default function Hiring() {
   const [showModal, setShowModal] = useState(false);
 
   const handleViewAll = () => {
-    navigate('/employee/Work');
+    navigate('/employee/HiringRole');
   };
 
   const handleApplicantClick = (applicant) => {
