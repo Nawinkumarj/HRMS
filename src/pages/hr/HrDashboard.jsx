@@ -7,7 +7,7 @@ import BirthdayCard from '../../components/BirthdayCard'
 import HolidayCard from '../../components/HolidayCard'
 import Assets from '../../components/Assets'
 // import { Calendar } from 'rsuite'
-import OurTeam from '../../components/ourTeam'
+import OurTeam from './../../components/OurTeam'
 import Schedule from '../../components/Schedule'
 import TaskList from '../../components/TaskList'
 

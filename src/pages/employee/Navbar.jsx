@@ -6,7 +6,10 @@ import { NavLink } from "react-router-dom";
 const Navbar = () => {
   const { user, handleLogout } = useAuth();
 
-  const [modeImg, setModeImg] = useState(assets.lightIcon);
+  // const [modeImg, setModeImg] = useState(assets.lightIcon);
+  const [mode, setMode] = useState
+    (localStorage.getItem("mode") || "light"
+    );
   const [openProfile, setOpenProfile] = useState("none");
   const [weather, setWeather] = useState({
     city: "",
@@ -15,11 +18,21 @@ const Navbar = () => {
     loading: true,
   });
 
+  // const ModeChange = () => {
+  //   setModeImg((prevImage) =>
+  //     prevImage === assets.lightIcon ? assets.darkIcon : assets.lightIcon
+  //   );
+  // };
   const ModeChange = () => {
-    setModeImg((prevImage) =>
-      prevImage === assets.lightIcon ? assets.darkIcon : assets.lightIcon
-    );
+    setMode((prev) => (prev === "light" ? "dark" : "light"));
   };
+  const modeImg = mode === "light" ? assets.lightIcon : assets.darkIcon;
+
+  useEffect(() => {
+    document.body.classList.remove("light", "dark");
+    document.body.classList.add(mode);
+    localStorage.setItem("mode", mode);
+  }, [mode]);
 
   useEffect(() => {
     if (navigator.geolocation) {

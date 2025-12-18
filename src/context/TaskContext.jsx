@@ -117,19 +117,24 @@ export function TaskProvider({ children }) {
       progress: 0,
       category: task.category || "Personal",
     };
+    
 
     setDailyTask((prev) => [...prev, newTask]);
   };
+
 
   const deleteTask = (id) => {
     setDailyTask((prev) => prev.filter((t) => t.id !== id));
   };
 
-  const updateTask = (id, changes) => {
-    setDailyTask((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, ...changes } : t))
-    );
-  };
+const updateTask = (updatedTask) => {
+  setDailyTask(prev =>
+    prev.map(task =>
+      task.id === updatedTask.id ? updatedTask : task
+    )
+  );
+};
+
 
   console.log("dailyTask State:", dailyTask);
 

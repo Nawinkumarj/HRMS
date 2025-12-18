@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Payslip from '../../components/paySlip';
 import { toast } from 'react-toastify';
 
@@ -15,6 +15,9 @@ export default function Salary() {
     billFile: null,
     billFileName: ''
   });
+  const [showBillModal, setShowBillModal] = useState(false);
+  const [selectedBill, setSelectedBill] = useState(null);
+
 
   // Current salary details
   const salaryDetails = {
@@ -111,6 +114,17 @@ export default function Salary() {
       billAttached: false
     },
   ]);
+  console.log(reimbursements, 'reimbursements');
+
+  // const handleView = () => {
+  //   const viewDeatil = reimbursements
+  //   setSelectedBill(viewDeatil)
+  //   console.log(selectedBill);
+  // }
+
+  // useEffect(() => {
+  //   handleView()
+  // }, [])
 
   const taxSummary = {
     ytdGross: grossSalary * 9, // Year to date (9 months)
@@ -127,36 +141,36 @@ export default function Salary() {
     toast.success(`Payslip for ${month} ${year} will be downloaded`);
   };
 
- const handleReimbursementSubmit = (e) => {
-  e.preventDefault();
+  const handleReimbursementSubmit = (e) => {
+    e.preventDefault();
 
-  const newReimbursement = {
-    id: Date.now(),
-    type: reimbursementForm.type,
-    amount: Number(reimbursementForm.amount),
-    date: reimbursementForm.date,
-    description: reimbursementForm.description,
-    status: "Pending",
-    approvedDate: "-",
-    billAttached: reimbursementForm.billFile ? true : false,
-    billFile: reimbursementForm.billFile
+    const newReimbursement = {
+      id: Date.now(),
+      type: reimbursementForm.type,
+      amount: Number(reimbursementForm.amount),
+      date: reimbursementForm.date,
+      description: reimbursementForm.description,
+      status: "Pending",
+      approvedDate: "-",
+      billAttached: reimbursementForm.billFile ? true : false,
+      billFile: reimbursementForm.billFile
+    };
+    setReimbursements((prev) => [...prev, newReimbursement]);
+
+    toast.success("Reimbursement request submitted successfully!");
+
+    setShowReimbursementModal(false);
+
+    // RESET FORM
+    setReimbursementForm({
+      type: '',
+      amount: '',
+      description: '',
+      date: '',
+      billFile: null,
+      billFileName: ''
+    });
   };
-  setReimbursements((prev) => [...prev, newReimbursement]);
-
-  toast.success("Reimbursement request submitted successfully!");
-
-  setShowReimbursementModal(false);
-
-  // RESET FORM
-  setReimbursementForm({
-    type: '',
-    amount: '',
-    description: '',
-    date: '',
-    billFile: null,
-    billFileName: ''
-  });
-};
 
 
   const handleFileChange = (e) => {
@@ -377,13 +391,20 @@ export default function Salary() {
                   <td>{reimbursement.description}</td>
                   <td>
                     {reimbursement.billAttached ? (
-                      <button className="view-bill-btn">
+                      <button
+                        className="view-bill-btn"
+                        onClick={() => {
+                          setSelectedBill(reimbursement);
+                          setShowBillModal(true);
+                        }}
+                      >
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                         </svg>
                         View
                       </button>
+
                     ) : (
                       <span className="no-bill">No Bill</span>
                     )}
@@ -395,7 +416,7 @@ export default function Salary() {
                   </td>
                   <td>{reimbursement.approvedDate}</td>
                 </tr>
-              ))}      
+              ))}
             </tbody>
           </table>
         </div>
@@ -508,7 +529,7 @@ export default function Salary() {
                     handleDownloadPayslip(selectedMonth, selectedYear);
                     setShowPayslipModal(false);
                   } else {
-                    alert('Please select a month');
+                    toast.info('Please select a month');
                   }
                 }}
                 className="refer-button"
@@ -661,8 +682,49 @@ export default function Salary() {
         </div>
       )}
       <div>
-        <paySlip/>
+        <paySlip />
       </div>
+      {showBillModal && selectedBill && (
+        <div className="modal-overlay" onClick={() => setShowBillModal(false)}>
+          <div className="modal-content bill-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 className="modal-title">Bill / Invoice</h2>
+              <button onClick={() => setShowBillModal(false)} className="close-button">
+                ×
+              </button>
+            </div>
+
+            <div className="modal-body">
+              {selectedBill.billFile ? (
+                selectedBill.billFile.type === "application/pdf" ? (
+                  <embed
+                    src={URL.createObjectURL(selectedBill.billFile)}
+                    type="application/pdf"
+                    width="100%"
+                    height="500px"
+                  />
+                ) : (
+                  <img
+                    src={URL.createObjectURL(selectedBill.billFile)}
+                    alt="Bill Preview"
+                    style={{ width: "100%", height: "auto", borderRadius: "8px" }}
+                  />
+                )
+              ) : (
+                <p>No bill attached.</p>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <button onClick={() => setShowBillModal(false)} className="cancel-button">
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
     </div>
   );
 }

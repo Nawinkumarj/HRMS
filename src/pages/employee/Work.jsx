@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { TaskContext } from "../../context/TaskContext";
 import { useContext } from "react";
+import { FiFilter } from "react-icons/fi";
 
 export default function Work() {
-  const { dailyTask, addTask } = useContext(TaskContext);
+  const { dailyTask, addTask, updateTask } = useContext(TaskContext);
   // console.log(dailyTask, "tasks");
-  const dailyTasks= dailyTask;
-  
+  const dailyTasks = dailyTask;
+
+
+
 
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
@@ -20,6 +23,9 @@ export default function Work() {
     message: "",
     attachments: [],
   });
+  const [showHelpModal, setShowHelpModal] = useState(false);
+  const [helpTask, setHelpTask] = useState(null);
+
 
   const [newTask, setNewTask] = useState({
     title: "",
@@ -31,14 +37,22 @@ export default function Work() {
 
   // Daily Tasks from Team Lead
   // const [dailyTasks, setDailyTasks] = useState([
-   
+
   // ]);
 
+  // Auto calculate weekly statistics from dailyTasks
   const weeklyStats = {
-    completed: 12,
-    assigned: 18,
-    pending: 6,
-    performance: 85,
+    completed: dailyTasks.filter(t => t.status === "Completed").length,
+    assigned: dailyTasks.length,
+    pending: dailyTasks.filter(t => t.status !== "Completed").length,
+    performance:
+      dailyTasks.length === 0
+        ? 0
+        : Math.round(
+          (dailyTasks.filter(t => t.status === "Completed").length /
+            dailyTasks.length) *
+          100
+        ),
   };
 
   // Recent Updates/POCs sent
@@ -69,15 +83,14 @@ export default function Work() {
   };
 
   const handleNeedHelp = (task) => {
-    alert(`Help requested for task: ${task.title}`);
-
+    setHelpTask(task);
+    setShowHelpModal(true);
   };
 
+
   const handleMarkComplete = (task) => {
-    const updatedTasks = dailyTasks.map(t =>
-      t.id === task.id ? { ...t, status: "Completed", progress: 100 } : t
-    );
-    setDailyTasks(updatedTasks);
+    const updated = { ...task, status: "Completed", progress: 100 };
+    updateTask(updated);
     toast.success(`Task marked as complete: ${task.title}`);
   };
 
@@ -109,34 +122,34 @@ export default function Work() {
   };
 
   const handleAddTask = (e) => {
-  e.preventDefault();
-  const task = {
-    id: dailyTasks.length + 1,
-    title: newTask.title,
-    assignedBy: "Self",
-    assignedDate: new Date().toISOString().split("T")[0],
-    dueDate: newTask.dueDate,
-    priority: newTask.priority,
-    status: "Pending",
-    description: newTask.description,
-    requirements: [],
-    progress: 0,
-    category: newTask.category,
+    e.preventDefault();
+    const task = {
+      id: dailyTasks.length + 1,
+      title: newTask.title,
+      assignedBy: "Self",
+      assignedDate: new Date().toISOString().split("T")[0],
+      dueDate: newTask.dueDate,
+      priority: newTask.priority,
+      status: "Pending",
+      description: newTask.description,
+      requirements: [],
+      progress: 0,
+      category: newTask.category,
+    };
+
+    // setDailyTasks([...dailyTasks, task]);
+    addTask(task);
+    setNewTask({
+      title: "",
+      description: "",
+      dueDate: "",
+      priority: "Medium",
+      category: "Personal",
+    });
+
+    setShowAddTaskModal(false);
+    toast.success("Task added successfully!");
   };
-
-  // setDailyTasks([...dailyTasks, task]);
-  addTask(task); 
-  setNewTask({
-    title: "",
-    description: "",
-    dueDate: "",
-    priority: "Medium",
-    category: "Personal",
-  });
-
-  setShowAddTaskModal(false);
-  toast.success("Task added successfully!");
-};
 
 
   const handleDeleteTask = (taskId, e) => {
@@ -202,7 +215,7 @@ export default function Work() {
         <div className="header-actions">
           <button
             onClick={() => setShowAddTaskModal(true)}
-            className="add-task-btn"
+            className="submit-btn-task"
           >
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -315,7 +328,9 @@ export default function Work() {
         <div className="section-header">
           <h2 className="section-title">Daily Tasks</h2>
           <div className="task-filters">
-            <span className="filter-label">Filter by:</span>
+            <span className="fil-label">
+              <FiFilter size={20} />
+            </span>
             <select className="filter-select">
               <option value="all">All Tasks</option>
               <option value="work">Work Tasks</option>
@@ -334,11 +349,11 @@ export default function Work() {
                 <div className="task-title-section">
                   <h3 className="task-title">{task.title}</h3>
                 </div>
-                  <div>
+                <div>
                   <span className={`category-badge ${getCategoryColor(task.category)}`}>
                     {task.category}
                   </span>
-                  </div>
+                </div>
                 <div className="task-header-right">
                   <span
                     className={`priority-badge ${getPriorityColor(
@@ -358,7 +373,7 @@ export default function Work() {
                   )}
                 </div>
               </div>
-              
+
 
               <p className="task-description">{task.description}</p>
 
@@ -497,125 +512,121 @@ export default function Work() {
       </div>
 
       {/* Add Task Modal */}
-      {showAddTaskModal && (
-        <div
-          className="modal-overlay"
+     {showAddTaskModal && (
+  <div
+    className="taskAdd-overlay"
+    onClick={() => setShowAddTaskModal(false)}
+  >
+    <div
+      className="taskAdd-modal"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="taskAdd-header">
+        <h2 className="taskAdd-title">Add New Task</h2>
+        <button
           onClick={() => setShowAddTaskModal(false)}
+          className="taskAdd-close"
         >
-          <div
-            className="modal-content task-modal glass-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="modal-header">
-              <h2 className="modal-title">Add New Task</h2>
-              <button
-                onClick={() => setShowAddTaskModal(false)}
-                className="close-button"
-              >
-                ×
-              </button>
+          ×
+        </button>
+      </div>
+
+      <form onSubmit={handleAddTask}>
+        <div className="taskAdd-body">
+          <div className="taskAdd-field">
+            <label className="taskAdd-label">Task Title *</label>
+            <input
+              type="text"
+              className="taskAdd-input"
+              placeholder="Enter task title"
+              value={newTask.title}
+              onChange={(e) =>
+                setNewTask({ ...newTask, title: e.target.value })
+              }
+              required
+            />
+          </div>
+
+          <div className="taskAdd-field">
+            <label className="taskAdd-label">Description</label>
+            <textarea
+              className="taskAdd-textarea"
+              rows="3"
+              placeholder="Enter task description"
+              value={newTask.description}
+              onChange={(e) =>
+                setNewTask({ ...newTask, description: e.target.value })
+              }
+            />
+          </div>
+
+          <div className="taskAdd-row">
+            <div className="taskAdd-field">
+              <label className="taskAdd-label">Due Date</label>
+              <input
+                type="date"
+                className="taskAdd-input"
+                value={newTask.dueDate}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, dueDate: e.target.value })
+                }
+              />
             </div>
 
-            <form onSubmit={handleAddTask}>
-              <div className="modal-body">
-                <div className="form-field">
-                  <label className="form-label">Task Title *</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="Enter task title"
-                    value={newTask.title}
-                    onChange={(e) =>
-                      setNewTask({ ...newTask, title: e.target.value })
-                    }
-                    required
-                  />
-                </div>
+            <div className="taskAdd-field">
+              <label className="taskAdd-label">Priority</label>
+              <select
+                className="taskAdd-select"
+                value={newTask.priority}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, priority: e.target.value })
+                }
+              >
+                <option>Low</option>
+                <option>Medium</option>
+                <option>High</option>
+                <option>Critical</option>
+              </select>
+            </div>
+          </div>
 
-                <div className="form-field">
-                  <label className="form-label">Description</label>
-                  <textarea
-                    className="form-textarea"
-                    rows="3"
-                    placeholder="Enter task description"
-                    value={newTask.description}
-                    onChange={(e) =>
-                      setNewTask({ ...newTask, description: e.target.value })
-                    }
-                  ></textarea>
-                </div>
-
-                <div className="form-row">
-                  <div className="form-field">
-                    <label className="form-label">Due Date</label>
-                    <input
-                      type="date"
-                      className="form-input"
-                      value={newTask.dueDate}
-                      onChange={(e) =>
-                        setNewTask({ ...newTask, dueDate: e.target.value })
-                      }
-                    />
-                  </div>
-
-                  <div className="form-field">
-                    <label className="form-label">Priority</label>
-                    <select
-                      className="form-select"
-                      value={newTask.priority}
-                      onChange={(e) =>
-                        setNewTask({ ...newTask, priority: e.target.value })
-                      }
-                    >
-                      <option value="Low">Low</option>
-                      <option value="Medium">Medium</option>
-                      <option value="High">High</option>
-                      <option value="Critical">Critical</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="form-field">
-                  <label className="form-label">Category</label>
-                  <select
-                    className="form-select"
-                    value={newTask.category}
-                    onChange={(e) =>
-                      setNewTask({ ...newTask, category: e.target.value })
-                    }
-                  >
-                    <option value="Personal">Personal</option>
-                    <option value="Work">Work</option>
-                    <option value="Learning">Learning</option>
-                    <option value="Urgent">Urgent</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  onClick={() => setShowAddTaskModal(false)}
-                  className="modal-action-btn cancel-btn"
-                >
-                  Cancel
-                </button>
-                <button type="submit" className="modal-action-btn add-btn">
-                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                  Add Task
-                </button>
-              </div>
-            </form>
+          <div className="taskAdd-field">
+            <label className="taskAdd-label">Category</label>
+            <select
+              className="taskAdd-select"
+              value={newTask.category}
+              onChange={(e) =>
+                setNewTask({ ...newTask, category: e.target.value })
+              }
+            >
+              <option>Personal</option>
+              <option>Work</option>
+              <option>Learning</option>
+              <option>Urgent</option>
+            </select>
           </div>
         </div>
-      )}
+
+        <div className="taskAdd-footer">
+          <button
+            type="button"
+            onClick={() => setShowAddTaskModal(false)}
+            className="taskAdd-btn taskAdd-cancel"
+          >
+            Cancel
+          </button>
+          <button type="submit" className="taskAdd-btn taskAdd-add">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 4v16m8-8H4" />
+            </svg>
+            Add Task
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
 
       {/* Existing modals for task details and email updates remain the same */}
       {showTaskModal && selectedTask && (
@@ -900,6 +911,60 @@ Best regards"
           </div>
         </div>
       )}
+      {showHelpModal && helpTask && (
+        <div className="modal-overlay" onClick={() => setShowHelpModal(false)}>
+          <div
+            className="modal-content glass-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h2 className="modal-title">Need Help for Task</h2>
+              <button
+                onClick={() => setShowHelpModal(false)}
+                className="close-button"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <p className="detail-text">
+                You are requesting help for:
+              </p>
+              <h3 className="task-title" style={{ marginTop: "8px" }}>
+                {helpTask.title}
+              </h3>
+
+              <textarea
+                className="email-textarea"
+                rows="5"
+                placeholder="Describe what help you need..."
+                style={{ marginTop: "16px" }}
+              ></textarea>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                className="modal-action-btn cancel-btn"
+                onClick={() => setShowHelpModal(false)}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="modal-action-btn send-btn"
+                onClick={() => {
+                  toast.success(`Help request sent for: ${helpTask.title}`);
+                  setShowHelpModal(false);
+                }}
+              >
+                Send Request
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
