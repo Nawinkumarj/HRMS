@@ -136,7 +136,6 @@ const updateTask = (updatedTask) => {
 };
 
 
-  console.log("dailyTask State:", dailyTask);
 
   return (
     <TaskContext.Provider

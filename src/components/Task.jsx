@@ -27,7 +27,7 @@ export default function Task() {
 
   return (
     <section className="task-create">
-      <div className="task-create__wrapper">
+      <div>
         <div className="task-create__card">
           <h3 className="task-create__title">Add New Task</h3>
 

@@ -4976,6 +4976,8 @@ color: black!important;
   min-height: 100vh;
   /* background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); */
   position: relative;
+     --primary: #6dd5ed;
+    --secondary: #2193b0;
 }
 
 .work-container::before {
@@ -5871,6 +5873,8 @@ color: black!important;
   margin: 0 auto;
   min-height: 100vh;
   background: none;
+   --primary: #6dd5ed;
+    --secondary: #2193b0;
 }
 
 .glass-card {

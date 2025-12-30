@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { assets } from "../../assets/assets";
 import { useAuth } from "../../context/AuthContext";
 import { NavLink } from "react-router-dom";
+import { Maximize } from "lucide-react";
 
 const Navbar = () => {
   const { user, handleLogout } = useAuth();
@@ -72,14 +73,35 @@ const Navbar = () => {
     }
   }, []);
 
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    const toggleFullscreen = useCallback(() => {
+    if (!isFullscreen) {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => { });
+        setIsFullscreen(true);
+      }
+    } else {
+      if (document.exitFullscreen) {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => { });
+        }
+        setIsFullscreen(false);
+      }
+    }
+  }, [isFullscreen]);
+
   return (
-    <div className="navbarContainer flex-center">
+    <div className={`navbarContainer ${mode} flex-center`}>
       <div className="leftSide">
         <h1>Welcome {user?.name} !</h1>
         <img src={assets.handIcon} alt="" />
       </div>
 
       <div className="rightSide flex-center">
+        <span onClick={toggleFullscreen}>
+          <Maximize size={22} />
+        </span>
         <div className="weatherInfo flex-center">
           {weather.loading ? (
             <p>Loading...</p>

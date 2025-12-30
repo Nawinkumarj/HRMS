@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 
 
 export default function LeaveList() {
@@ -137,23 +138,23 @@ export default function LeaveList() {
 
   const handleApprove = (id) => {
     console.log('Approve leave:', id);
-    alert(`Leave request #${id} approved`);
+    toast.success(`Leave request #${id} approved`);
   };
 
   const handleReject = (id) => {
     console.log('Reject leave:', id);
-    alert(`Leave request #${id} rejected`);
+    toast.warning(`Leave request #${id} rejected`);
   };
 
   const handleApproveAll = () => {
     const pendingCount = leaveRequests.filter(req => req.status === 'pending').length;
-    alert(`Approving all ${pendingCount} pending leave requests`);
+    toast(`Approving all ${pendingCount} pending leave requests`);
   };
 
   const handleAddLeave = (e) => {
     e.preventDefault();
     console.log('Add leave:', leaveForm);
-    alert('Leave request submitted successfully!');
+    toast('Leave request submitted successfully!');
     setShowAddLeaveModal(false);
     setLeaveForm({ leaveType: '', startDate: '', endDate: '', reason: '' });
   };

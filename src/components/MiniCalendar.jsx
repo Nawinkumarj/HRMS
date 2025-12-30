@@ -44,7 +44,7 @@ const CalendarApp = () => {
     if (holiday) {
       return (
         <div className="holidayCell">
-          <Badge className="holidayBadge" content={holiday.title} />
+          <Badge className="holidayBadge" content={holiday.title} placement="right" />
         </div>
       );
     }

@@ -70,9 +70,9 @@ function pad(val) {
 const employeeSchedule = () => {
   const [activeTab, setActiveTab] = useState("Meetings");
   const [year, setYear] = useState(2025);
-  const [month, setMonth] = useState(7); // August 0-based
-  const weekDates = getDatesForWeek(year, month, 6, 5); // Sat...Wed
-  const [selectedDate, setSelectedDate] = useState(weekDates[2]); // Default: Monday
+  const [month, setMonth] = useState(7);
+  const weekDates = getDatesForWeek(year, month, 6, 5);
+  const [selectedDate, setSelectedDate] = useState(weekDates[2]); 
 
 
 
@@ -89,12 +89,12 @@ const employeeSchedule = () => {
     setMonth(nextDate.getMonth());
     let week = getDatesForWeek(nextDate.getFullYear(), nextDate.getMonth(), 6, 5);
     setSelectedDate(week[2]);
-    setSearchInput(""); // Reset search
+    setSearchInput(""); 
   }
 
   function selectDate(date) {
     setSelectedDate(date);
-    setSearchInput(""); // Reset search
+    setSearchInput(""); 
   }
 
   const filteredMeetings = meetings.filter(meeting =>
@@ -102,7 +102,7 @@ const employeeSchedule = () => {
     meeting.time.toLowerCase().includes(searchInput.toLowerCase()) ||
     meeting.platform.toLowerCase().includes(searchInput.toLowerCase())
   );
-  console.log(holidays,"Holiday");
+
   return (
     <div className="schedule-container-employee">
       <div className="schedule-header">
@@ -153,8 +153,8 @@ const employeeSchedule = () => {
         />
         <button className="calendar-grid-btn">📅</button>
       </div>
-
-      <div className="tabs-row">
+      
+  <div className="tabs-row">
         {[ "Meetings", "Events", "Holiday"].map((tab) => (
           <div
             key={tab}
@@ -166,62 +166,63 @@ const employeeSchedule = () => {
         ))}
       </div>
 
-
-      {activeTab === "Meetings" && (
-        <>
-          {filteredMeetings.length > 0 ? (
-            filteredMeetings.map((meeting, i) => (
-              <div className="meeting-card" key={i}>
+      <div className="tab-content-scroll">
+        {activeTab === "Meetings" && (
+          <>
+            {filteredMeetings.length > 0 ? (
+              filteredMeetings.map((meeting, i) => (
+                <div className="meeting-card" key={i}>
+                  <div className="meeting-title-row">
+                    <span className="meeting-title">{meeting.title}</span>
+                  </div>
+                  <div className="meeting-time">{meeting.time}</div>
+                  <div className="meeting-avatars">
+                    {meeting.avatars.map((avatar, idx) => (
+                      <img src={avatar} alt={`Avatar${idx}`} key={idx} />
+                    ))}
+                    {meeting.others > 0 && (
+                      <span className="more-avatars">+{meeting.others}</span>
+                    )}
+                  </div>
+                  <div className="meeting-footer">
+                    <span className="meeting-platform">{meeting.platform}</span>
+                    <span className={`meeting-category ${meeting.categoryClass}`}>
+                      {meeting.category}
+                    </span>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="meeting-card">
                 <div className="meeting-title-row">
-                  <span className="meeting-title">{meeting.title}</span>
-                </div>
-                <div className="meeting-time">{meeting.time}</div>
-                <div className="meeting-avatars">
-                  {meeting.avatars.map((avatar, idx) => (
-                    <img src={avatar} alt={`Avatar${idx}`} key={idx} />
-                  ))}
-                  {meeting.others > 0 && (
-                    <span className="more-avatars">+{meeting.others}</span>
-                  )}
-                </div>
-                <div className="meeting-footer">
-                  <span className="meeting-platform">{meeting.platform}</span>
-                  <span className={`meeting-category ${meeting.categoryClass}`}>
-                    {meeting.category}
+                  <span className="meeting-title">
+                    {searchInput
+                      ? "No meetings match your search."
+                      : "No meetings scheduled."
+                    }
                   </span>
                 </div>
               </div>
-            ))
-          ) : (
-            <div className="meeting-card">
-              <div className="meeting-title-row">
-                <span className="meeting-title">
-                  {searchInput
-                    ? "No meetings match your search."
-                    : "No meetings scheduled."
-                  }
-                </span>
-              </div>
+            )}
+          </>
+        )}
+
+        {activeTab === "Events" && (
+          <div className="meeting-card">
+            <div className="meeting-title-row">
+              <span className="meeting-title">No events scheduled for this date.</span>
             </div>
-          )}
-        </>
-      )}
-
-      {activeTab === "Events" && (
-        <div className="meeting-card">
-          <div className="meeting-title-row">
-            <span className="meeting-title">No events scheduled for this date.</span>
           </div>
-        </div>
-      )}
+        )}
 
-      {activeTab === "Holiday" && (
-        <div className="meeting-card">
-          <div className="meeting-title-row">
-            <span className="meeting-title">No holidays on this date.</span>
+        {activeTab === "Holiday" && (
+          <div className="meeting-card">
+            <div className="meeting-title-row">
+              <span className="meeting-title">No holidays on this date.</span>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
